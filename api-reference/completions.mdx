@@ -1,0 +1,174 @@
+---
+title: "POST /v1/completions — AI Text Completions API"
+sidebarTitle: "Completions"
+description: "Generate AI text completions with Piixan AI. POST /v1/completions accepts a model, prompt, and options. Returns generated text."
+---
+
+The completions endpoint is the core of Piixan AI. Send a prompt and receive AI-generated text tailored to your use case — whether you're drafting content, answering questions, or powering an intelligent feature inside your product.
+
+```
+POST https://api.piixan.ai/v1/completions
+```
+
+## Request Body
+
+<ParamField body="model" type="string" required>
+  The AI model to use for the completion. Choose one of:
+  - `piixan-1` — balanced speed and quality
+  - `piixan-1-turbo` — fastest responses, ideal for high-throughput use cases
+  - `piixan-pro` — highest quality, best for complex reasoning tasks
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  The input text you want the model to complete or respond to.
+</ParamField>
+
+<ParamField body="system" type="string">
+  A system-level instruction that sets the AI's behavior and persona for the entire request. Use this to establish tone, role, or constraints before the prompt is evaluated.
+</ParamField>
+
+<ParamField body="max_tokens" type="integer" default={1024}>
+  The maximum number of tokens to generate in the response. Accepted range is `1` to `8192`. Requests that exceed your plan's limit are rejected with a `400` error.
+</ParamField>
+
+<ParamField body="temperature" type="number" default={0.7}>
+  Controls the creativity and randomness of the output. Use `0.0` for deterministic, focused responses and `1.0` for highly varied, creative output.
+</ParamField>
+
+<ParamField body="stop" type="string[]">
+  An array of sequences at which the model will stop generating further tokens. Useful for structuring output or enforcing boundaries, e.g., `["\n\n", "END"]`.
+</ParamField>
+
+<ParamField body="stream" type="boolean" default={false}>
+  When set to `true`, the response is streamed as Server-Sent Events (SSE) so you can display text as it is generated. See [Streaming Responses](#streaming-responses) below.
+</ParamField>
+
+## Response Body
+
+<ResponseField name="id" type="string">
+  A unique identifier for this completion, e.g., `cmpl_01j9xk2p`.
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  The model that was used to generate the completion.
+</ResponseField>
+
+<ResponseField name="output" type="string">
+  The AI-generated text produced in response to your prompt.
+</ResponseField>
+
+<ResponseField name="usage" type="object">
+  Token consumption details for the request.
+
+  <Expandable title="usage fields">
+    <ResponseField name="input_tokens" type="integer">
+      Number of tokens in the combined system instruction and prompt.
+    </ResponseField>
+    <ResponseField name="output_tokens" type="integer">
+      Number of tokens in the generated output.
+    </ResponseField>
+    <ResponseField name="total_tokens" type="integer">
+      Total tokens consumed (`input_tokens` + `output_tokens`). This value is used for billing and quota tracking.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp indicating when the completion was created, e.g., `2024-01-15T10:30:00Z`.
+</ResponseField>
+
+## Example
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://api.piixan.ai/v1/completions \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "piixan-1",
+    "system": "You are a concise technical writer.",
+    "prompt": "Explain what an API key is in one sentence.",
+    "max_tokens": 100,
+    "temperature": 0.5
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://api.piixan.ai/v1/completions",
+    headers={
+        "Authorization": "Bearer YOUR_API_KEY",
+        "Content-Type": "application/json",
+    },
+    json={
+        "model": "piixan-1",
+        "system": "You are a concise technical writer.",
+        "prompt": "Explain what an API key is in one sentence.",
+        "max_tokens": 100,
+        "temperature": 0.5,
+    },
+)
+
+data = response.json()
+print(data["output"])
+```
+
+</CodeGroup>
+
+**Example response:**
+
+```json
+{
+  "id": "cmpl_01j9xk2p",
+  "model": "piixan-1",
+  "output": "An API key is a unique authentication token that identifies your application when making requests to an external service.",
+  "usage": {
+    "input_tokens": 28,
+    "output_tokens": 22,
+    "total_tokens": 50
+  },
+  "created_at": "2024-01-15T10:30:00Z"
+}
+```
+
+## Streaming Responses
+
+When you set `"stream": true`, Piixan AI returns the response as a stream of Server-Sent Events rather than a single JSON object. Each event contains a chunk of generated text, letting you display output progressively as it arrives.
+
+The stream closes with a final `[DONE]` message. Non-streaming fields like `id` and `usage` are sent as a terminal event before the stream ends.
+
+```python Python — Streaming
+import requests
+
+response = requests.post(
+    "https://api.piixan.ai/v1/completions",
+    headers={
+        "Authorization": "Bearer YOUR_API_KEY",
+        "Content-Type": "application/json",
+    },
+    json={
+        "model": "piixan-1-turbo",
+        "prompt": "Write a short poem about automation.",
+        "stream": True,
+    },
+    stream=True,
+)
+
+for line in response.iter_lines():
+    if line:
+        decoded = line.decode("utf-8")
+
+        # Skip the SSE "data:" prefix and the terminal signal
+        if decoded.startswith("data:"):
+            payload = decoded[len("data:"):].strip()
+            if payload == "[DONE]":
+                break
+            print(payload, end="", flush=True)
+```
+
+<Note>
+  Streaming requires that your HTTP client keeps the connection open and processes chunks incrementally. Most HTTP libraries support this — set `stream=True` in the `requests` library, or use `fetch` with a `ReadableStream` in the browser.
+</Note>

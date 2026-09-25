@@ -1,0 +1,89 @@
+---
+title: "AI Models Available in Piixan AI"
+sidebarTitle: "AI Models"
+description: "Explore the AI models available in Piixan AI. Each model is optimized for different tasks, from fast completions to deep reasoning."
+---
+
+Choosing the right model is one of the most impactful decisions you'll make when building with Piixan AI. Each model represents a different trade-off between speed, reasoning depth, and credit cost — selecting the best fit for your task means your application runs faster, stays within budget, and delivers the quality your users expect.
+
+## Available Models
+
+The table below summarizes every model currently available on the platform, along with the workloads each one handles best.
+
+| Model | Best For | Max Tokens | Speed |
+|---|---|---|---|
+| `piixan-1` | General purpose, content generation | 4,096 | Fast |
+| `piixan-1-turbo` | Quick tasks, chat, classification | 2,048 | Very Fast |
+| `piixan-pro` | Complex reasoning, analysis | 8,192 | Standard |
+
+## Choosing the Right Model
+
+Pick a model based on the complexity and volume of your use case:
+
+- **`piixan-1-turbo`** — Reach for this model first when you're running high-volume operations where each individual request is relatively straightforward. It excels at classification, short-form chat, intent detection, and any task where sub-second latency matters. Its lower credit cost per token makes it the economical default for production workloads.
+
+- **`piixan-1`** — Use this model for balanced tasks that need more nuance than turbo can provide but don't require exhaustive reasoning. Blog post drafts, product descriptions, email generation, and moderately complex summarization all sit in `piixan-1`'s sweet spot.
+
+- **`piixan-pro`** — Reserve this model for tasks that genuinely demand deep reasoning: multi-step analysis, legal or financial document review, research synthesis, or any prompt where getting the logic exactly right outweighs speed or cost. Its 8,192-token context window also makes it the right choice when you need to pass in large documents.
+
+## Specifying a Model in API Requests
+
+Pass the `model` field in your request body when calling `POST /v1/completions`. If you omit it, the API defaults to `piixan-1`.
+
+<CodeGroup>
+```bash cURL
+curl --request POST \
+  --url https://app.piixan.ai/v1/completions \
+  --header 'Authorization: Bearer YOUR_API_KEY' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "model": "piixan-1",
+    "prompt": "Summarize the key benefits of serverless architecture in three bullet points.",
+    "max_tokens": 256,
+    "temperature": 0.7
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.piixan.ai/v1/completions",
+    headers={
+        "Authorization": "Bearer YOUR_API_KEY",
+        "Content-Type": "application/json",
+    },
+    json={
+        "model": "piixan-1",
+        "prompt": "Summarize the key benefits of serverless architecture in three bullet points.",
+        "max_tokens": 256,
+        "temperature": 0.7,
+    },
+)
+
+print(response.json())
+```
+
+```javascript Node.js
+const response = await fetch("https://app.piixan.ai/v1/completions", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "piixan-1",
+    prompt: "Summarize the key benefits of serverless architecture in three bullet points.",
+    max_tokens: 256,
+    temperature: 0.7,
+  }),
+});
+
+const data = await response.json();
+console.log(data);
+```
+</CodeGroup>
+
+<Note>
+  Model availability depends on your plan tier. `piixan-1` and `piixan-1-turbo` are available on all plans, including Starter. `piixan-pro` requires a Growth plan or higher. Check your current plan at [app.piixan.ai/settings/billing](https://app.piixan.ai/settings/billing).
+</Note>

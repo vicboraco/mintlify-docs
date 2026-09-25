@@ -1,0 +1,92 @@
+---
+title: "Frequently Asked Questions — Piixan AI"
+sidebarTitle: "FAQ"
+description: "Answers to the most common questions about Piixan AI: credit pricing, API rate limits, data privacy, supported AI models, and account management."
+---
+
+This page answers the questions our users ask most often. If you can't find what you're looking for here, reach out to the support team at [support@piixan.ai](mailto:support@piixan.ai) and a human will get back to you promptly.
+
+<AccordionGroup>
+  <Accordion title="What AI models does Piixan AI support?">
+    Piixan AI currently offers three models, each optimised for different use cases:
+
+    | Model | Description |
+    |---|---|
+    | `piixan-1` | A well-rounded model suited for everyday tasks — content generation, summarisation, classification, and general Q&A. |
+    | `piixan-1-turbo` | A speed-optimised variant of `piixan-1` built for high-throughput workloads where latency matters more than maximum accuracy. |
+    | `piixan-pro` | The most capable model in the lineup, designed for complex reasoning, long-context document analysis, and nuanced generation tasks. |
+
+    Specify your chosen model in the `model` field of any API request, or set a workspace-level default in [Settings → General](/configuration/settings).
+  </Accordion>
+
+  <Accordion title="How are credits calculated?">
+    Credits are consumed on a per-token basis. Every word — more precisely, every ~4 characters — in your prompt and in the model's response counts as approximately one token. Larger models like `piixan-pro` cost more credits per token than faster models like `piixan-1-turbo`.
+
+    For a full breakdown of per-model token pricing and example cost calculations, see the [Credits & Usage](/concepts/credits-usage) page.
+  </Accordion>
+
+  <Accordion title="Do credits expire?">
+    Credits purchased as part of a one-time credit pack are valid for **12 months from the date of purchase**. After 12 months, any unused purchased credits expire automatically.
+
+    Monthly credits included in a paid plan (Growth or Scale) expire at the end of each billing cycle and do not roll over to the following month.
+
+    Free trial credits (100 credits on the Free plan) also expire 12 months after your account is created.
+  </Accordion>
+
+  <Accordion title="Is my data used to train AI models?">
+    No. Piixan AI never uses your prompts, completions, uploaded files, or any other user-generated content to train or fine-tune AI models — ours or third-party ones. Your data belongs to you.
+
+    Request logs are retained for 30 days for debugging and support purposes, after which they are permanently deleted. You can disable request logging entirely in [Settings → Privacy](/configuration/settings#data--privacy) if your compliance requirements demand it.
+  </Accordion>
+
+  <Accordion title="What happens when I run out of credits?">
+    When your credit balance reaches zero, the Piixan AI API returns a **`402 Payment Required`** response for any request that would consume credits. Existing saved workflows will also stop executing until your balance is replenished.
+
+    To restore access immediately, purchase additional credits from [Settings → Billing → Buy Credits](/configuration/billing#purchasing-credits). Credits are applied to your account as soon as payment is confirmed.
+  </Accordion>
+
+  <Accordion title="Can I use Piixan AI for free?">
+    Yes. When you create a new account, Piixan AI automatically credits your workspace with **100 free trial credits** — no credit card required. These credits let you explore the API, run your first workflows, and evaluate the platform before committing to a paid plan.
+
+    Once your trial credits are exhausted, you need to upgrade to a paid plan or purchase a credit pack to continue using the platform. See the [Billing](/configuration/billing) page for plan details and pricing.
+  </Accordion>
+
+  <Accordion title="How do I cancel my subscription?">
+    You can cancel your subscription at any time without contacting support:
+
+    1. Go to **Settings → Billing → Plans** in your dashboard.
+    2. Click **Cancel Plan** beneath your current plan details.
+    3. Confirm the cancellation in the dialog that appears.
+
+    Your plan remains active until the end of the current billing cycle. After that, your workspace reverts to the Free tier. Your data, workflows, and settings are preserved — only credit allocations and rate limits change.
+  </Accordion>
+
+  <Accordion title="What file formats can I upload?">
+    The `POST /v1/files/upload` endpoint accepts the following file formats:
+
+    | Type | Extensions |
+    |---|---|
+    | Documents | `.pdf`, `.docx`, `.txt` |
+    | Data | `.csv` |
+    | Images | `.png`, `.jpg` / `.jpeg` |
+
+    The maximum file size is **20 MB** per upload. Files larger than 20 MB must be split before uploading. Once uploaded, files are available for use in workflow steps and completion requests for up to 30 days.
+  </Accordion>
+
+  <Accordion title="Is there a rate limit on API requests?">
+    Yes, every plan has request rate limits to ensure fair usage and platform stability. Rate limits are enforced per API key, per minute. When you exceed your limit, the API returns a `429 Too Many Requests` response.
+
+    For the full rate limit table by plan, retry guidance, and header documentation, see the [Rate Limits](/api-reference/rate-limits) reference page.
+  </Accordion>
+
+  <Accordion title="How do I contact support?">
+    Email the Piixan AI support team at [support@piixan.ai](mailto:support@piixan.ai). Include as much context as possible in your message:
+
+    - A clear description of the problem
+    - The `X-Request-ID` header value from any failed API response
+    - The workflow ID if the issue relates to a specific workflow run
+    - Steps to reproduce the issue
+
+    Growth and Scale plan subscribers receive a response within 48 and 24 hours respectively. Enterprise customers are served by a dedicated account manager.
+  </Accordion>
+</AccordionGroup>

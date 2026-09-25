@@ -1,0 +1,160 @@
+---
+title: "Integrate Piixan AI with Your Applications"
+sidebarTitle: "Integrations"
+description: "Connect Piixan AI to your apps and services via REST API, webhooks, or third-party no-code platforms like Zapier and Make."
+---
+
+Piixan AI is built to fit wherever your data and workflows already live. You can call the REST API directly from any backend service, receive real-time event notifications via webhooks when runs complete or fail, or connect Piixan AI to thousands of other tools through no-code platforms like Zapier and Make — all without changing your existing stack.
+
+## REST API Integration
+
+Every Piixan AI feature is available through a straightforward REST API. Authenticate with a Bearer token, send JSON, and receive JSON back. For full endpoint documentation, see the [API Reference](/api-reference/introduction).
+
+The examples below show the minimal code needed to run a workflow from Node.js and Python.
+
+<CodeGroup>
+
+```javascript Node.js
+const response = await fetch("https://app.piixan.ai/v1/workflows/run", {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${process.env.PIIXAN_API_KEY}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    workflow_id: "wf_abc123",
+    inputs: {
+      input: "Generate a weekly newsletter intro for a SaaS audience.",
+    },
+  }),
+});
+
+const data = await response.json();
+console.log(data.output);
+```
+
+```python Python
+import os
+import requests
+
+response = requests.post(
+    "https://app.piixan.ai/v1/workflows/run",
+    headers={
+        "Authorization": f"Bearer {os.environ['PIIXAN_API_KEY']}",
+        "Content-Type": "application/json",
+    },
+    json={
+        "workflow_id": "wf_abc123",
+        "inputs": {
+            "input": "Generate a weekly newsletter intro for a SaaS audience.",
+        },
+    },
+)
+
+data = response.json()
+print(data["output"])
+```
+
+</CodeGroup>
+
+## Webhook Events
+
+Rather than polling the API for run results, register a webhook endpoint and Piixan AI will push a notification to your server the moment something meaningful happens. This is the most efficient way to build event-driven pipelines that react in real time.
+
+Piixan AI emits the following events:
+
+| Event | Triggered when |
+|---|---|
+| `workflow.completed` | A workflow run finishes successfully |
+| `workflow.failed` | A workflow run encounters an error |
+| `usage.threshold_reached` | Your credit consumption crosses a configured threshold |
+
+When an event fires, Piixan AI sends a `POST` request to your registered endpoint with a JSON payload like this:
+
+```json
+{
+  "event": "workflow.completed",
+  "created_at": "2024-11-15T14:32:07Z",
+  "data": {
+    "run_id": "run_xyz789",
+    "workflow_id": "wf_abc123",
+    "workflow_name": "Product Description Generator",
+    "status": "completed",
+    "output": "Experience crystal-clear audio wherever you go...",
+    "duration_ms": 1842
+  }
+}
+```
+
+## Setting Up Webhooks
+
+<Steps>
+
+  <Step title="Navigate to Webhooks Settings">
+    In the Piixan AI dashboard, go to **Settings** → **Webhooks**. This page lists all your registered endpoints and their delivery history.
+  </Step>
+
+  <Step title="Add a New Endpoint">
+    Click **Add Endpoint**. In the dialog that appears, enter the full HTTPS URL of your server (e.g., `https://yourapp.com/webhooks/piixan`). Your endpoint must be publicly reachable and respond with a `2xx` status code within 10 seconds.
+  </Step>
+
+  <Step title="Select Events">
+    Check the events you want to subscribe to — for example, `workflow.completed` and `workflow.failed`. You can update your event selection at any time from the endpoint detail page.
+  </Step>
+
+  <Step title="Save and Verify">
+    Click **Save**. Piixan AI will send a test ping to your endpoint immediately. Confirm the delivery succeeded by checking the **Recent Deliveries** tab on the endpoint detail page.
+  </Step>
+
+</Steps>
+
+### Verifying Webhook Signatures
+
+Every webhook request includes an `X-Piixan-Signature` header containing an HMAC-SHA256 signature of the raw request body, signed with your endpoint's secret. Always verify this signature before processing the payload to confirm the request genuinely came from Piixan AI.
+
+```javascript Node.js
+const crypto = require("crypto");
+
+function verifyWebhook(rawBody, signature, secret) {
+  const expected = crypto
+    .createHmac("sha256", secret)
+    .update(rawBody)
+    .digest("hex");
+
+  return crypto.timingSafeEqual(
+    Buffer.from(expected),
+    Buffer.from(signature)
+  );
+}
+
+// In your Express handler:
+app.post("/webhooks/piixan", (req, res) => {
+  const sig = req.headers["x-piixan-signature"];
+  const isValid = verifyWebhook(req.rawBody, sig, process.env.WEBHOOK_SECRET);
+
+  if (!isValid) {
+    return res.status(401).send("Invalid signature");
+  }
+
+  const event = req.body;
+  console.log("Received event:", event.event);
+  res.sendStatus(200);
+});
+```
+
+## No-Code Integrations
+
+If you prefer to build automations without writing code, Piixan AI works with the most popular no-code platforms out of the box.
+
+<CardGroup cols={2}>
+  <Card title="Zapier" icon="bolt">
+    Use the Piixan AI Zapier app to trigger AI workflows from thousands of apps — no code required. Create Zaps that run a Piixan AI workflow whenever a new row appears in Google Sheets, a form is submitted, or a Slack message is posted.
+  </Card>
+  <Card title="Make (Integromat)" icon="gear">
+    Build visual automation scenarios with Piixan AI modules in Make. Drag and drop Piixan AI actions into multi-step scenarios to enrich, transform, or route data with AI as part of any automated process.
+  </Card>
+</CardGroup>
+
+<Tip>
+  To test your webhook handler locally before deploying, use [ngrok](https://ngrok.com) to expose your local server to the internet. Run `ngrok http 3000` to get a public HTTPS URL, then register that URL as your endpoint in Piixan AI settings. All webhook deliveries will tunnel directly to your machine in real time.
+</Tip>

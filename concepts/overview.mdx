@@ -1,0 +1,50 @@
+---
+title: "How Piixan AI Works: Core Concepts Overview"
+sidebarTitle: "Overview"
+description: "Understand the key building blocks of Piixan AI: models, workspaces, workflows, and credits. Learn how they work together."
+---
+
+This page gives you a conceptual map of Piixan AI so you can understand how its building blocks fit together before you start building. Whether you're integrating the API, setting up a team workspace, or designing an automated workflow, knowing how models, workspaces, workflows, and credits relate to each other will help you make faster decisions and avoid common pitfalls.
+
+<CardGroup cols={2}>
+  <Card title="AI Models" icon="brain">
+    Choose from multiple AI models tuned for different tasks — from lightning-fast classification to deep multi-step reasoning.
+  </Card>
+  <Card title="Workspaces" icon="folder">
+    Organize work by team, project, or department. Each workspace has its own API keys, members, and usage history.
+  </Card>
+  <Card title="Workflows" icon="bolt">
+    Chain AI steps into automated pipelines. Trigger them via API, schedule, or webhook to move data without manual effort.
+  </Card>
+  <Card title="Credits" icon="coins">
+    Pay only for what you use with our credit system. Credits are consumed per request based on the number of tokens processed.
+  </Card>
+</CardGroup>
+
+## How Everything Connects
+
+When you start using Piixan AI, the first thing you do is create a **workspace** — a container that holds your team members, API keys, workflows, and usage data. Inside that workspace, you pick an **AI model** that suits the task at hand: a fast turbo model for high-volume classification jobs, or a pro model for detailed analysis. You then build **workflows** that chain together prompts, transformations, and integrations into reusable pipelines. Every time one of those workflows runs — or whenever you call the API directly — **credits** are deducted from your workspace's balance based on the tokens consumed.
+
+This design keeps things clean: each workspace is independently billed and permissioned, so a staging environment never bleeds into production costs, and a contractor's API key never touches your main project's data.
+
+## Request Lifecycle
+
+Every API call you make travels through the same sequence of steps inside Piixan AI:
+
+<Steps>
+  <Step title="API Request">
+    Your application sends an HTTPS request to the Piixan AI API (for example, `POST /v1/completions`) with a JSON body describing the task and the model you want to use.
+  </Step>
+  <Step title="Authentication">
+    Piixan AI validates the `Authorization: Bearer <token>` header against your workspace's API keys. Invalid or missing tokens receive a `401 Unauthorized` response immediately.
+  </Step>
+  <Step title="Model Selection">
+    The platform routes your request to the correct model runtime based on the `model` field in your payload. If you omit the field, Piixan AI defaults to `piixan-1`.
+  </Step>
+  <Step title="Processing">
+    The selected model processes your prompt or workflow instructions, applying any configured system context, temperature settings, and token limits you specified.
+  </Step>
+  <Step title="Response">
+    Piixan AI returns a structured JSON response containing the model's output, token usage counts, and a unique request ID you can use for debugging. Credits are deducted from your workspace balance at this point.
+  </Step>
+</Steps>

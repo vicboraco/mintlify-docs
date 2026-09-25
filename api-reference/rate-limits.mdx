@@ -1,0 +1,91 @@
+---
+title: "API Rate Limits for Piixan AI"
+sidebarTitle: "Rate Limits"
+description: "Understand Piixan AI API rate limits by plan, read response headers to track usage, and implement retry logic to handle 429 errors gracefully."
+---
+
+Rate limits protect the reliability of the Piixan AI API for all users by preventing any single account from consuming a disproportionate share of platform resources. Limits are applied per API key and are enforced on a rolling per-minute window and a fixed per-day window. When your application approaches or exceeds a limit, the API responds with a `429 Too Many Requests` status code — your client should handle this gracefully rather than treating it as a fatal error.
+
+## Rate Limit Tiers
+
+Your rate limit depends on the plan associated with your Piixan AI account. Upgrading your plan increases both the per-minute burst capacity and the daily request ceiling.
+
+| Plan         | Requests / Min | Requests / Day |
+|--------------|----------------|----------------|
+| Free         | 10             | 100            |
+| Growth       | 60             | 5,000          |
+| Scale        | 300            | 50,000         |
+| Enterprise   | Custom         | Custom         |
+
+<Note>
+  Enterprise plans include custom rate limits negotiated to fit your workload. Contact [sales@piixan.ai](mailto:sales@piixan.ai) to discuss your requirements.
+</Note>
+
+## Rate Limit Headers
+
+Every API response includes three headers that tell you your current limit status. Read these headers in your client to implement proactive throttling before you hit the limit.
+
+| Header                  | Description                                                              |
+|-------------------------|--------------------------------------------------------------------------|
+| `X-RateLimit-Limit`     | The maximum number of requests allowed in the current window             |
+| `X-RateLimit-Remaining` | The number of requests you can still make in the current window          |
+| `X-RateLimit-Reset`     | Unix timestamp (UTC) at which the current window resets                  |
+
+Run a request with `--include` to inspect these headers directly:
+
+```bash
+curl --include --request GET \
+  --url https://api.piixan.ai/v1/workflows \
+  --header "Authorization: Bearer YOUR_API_KEY"
+```
+
+Example response headers:
+
+```http
+HTTP/2 200
+Content-Type: application/json
+X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 47
+X-RateLimit-Reset: 1717243260
+```
+
+## Handling 429 Errors
+
+When your client receives a `429 Too Many Requests` response, pause and retry the request after a brief delay. Use exponential backoff so that repeated failures don't create a thundering-herd problem. The Python example below demonstrates a simple retry wrapper you can drop into any integration.
+
+```python
+import time
+import requests
+
+def call_with_retry(url, headers, json_body, max_retries=3):
+    for attempt in range(max_retries):
+        resp = requests.post(url, headers=headers, json=json_body)
+        if resp.status_code == 429:
+            wait = 2 ** attempt  # 1s, 2s, 4s
+            time.sleep(wait)
+            continue
+        return resp
+    raise Exception("Max retries exceeded")
+
+
+# Example usage
+api_headers = {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json",
+}
+payload = {
+    "prompt": "Generate a product description for:",
+    "input": "Wireless noise-cancelling headphones",
+}
+
+result = call_with_retry(
+    url="https://api.piixan.ai/v1/completions",
+    headers=api_headers,
+    json_body=payload,
+)
+print(result.json())
+```
+
+<Tip>
+  When the `Retry-After` header is present in a `429` response, use its value as your wait time instead of computing your own backoff. `Retry-After` contains the number of seconds to wait before retrying and is more accurate than a fixed or exponential delay, because it reflects exactly when your rate-limit window resets on the server.
+</Tip>

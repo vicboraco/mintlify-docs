@@ -1,47 +1,78 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Get Started with Piixan AI in 5 Minutes"
+sidebarTitle: "Quickstart"
+description: "Learn how to sign up, get your API key, and make your first AI completion request with Piixan AI in just a few steps."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
-
-## Prerequisites
-
-Before you begin, you must have:
-
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
+By the end of this guide you will have a Piixan AI account, a working API key, and a successful AI completion response returned to your terminal. The whole process takes around five minutes and requires no prior setup beyond a browser and either `curl` or Python installed on your machine.
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
-
-    ```bash
-    npm install your-package
-    ```
+  <Step title="Create Your Account">
+    Navigate to [app.piixan.ai/signup](https://app.piixan.ai/signup) and fill in your name, email address, and a secure password. After you submit the form, check your inbox for a verification email and click the confirmation link to activate your account. Once confirmed, you'll land in the Piixan AI dashboard with free trial credits already applied.
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
 
-    ```bash
-    your-cli init
-    ```
+  <Step title="Get Your API Key">
+    In the dashboard, open **Settings → API Keys** or go directly to [app.piixan.ai/settings/api-keys](https://app.piixan.ai/settings/api-keys). Click **Create New Key**, enter a descriptive label (for example, `my-first-key`), and confirm.
+
+    <Warning>
+      Copy your API key immediately and store it somewhere safe — such as a password manager or a `.env` file. Piixan AI displays the full key **only once**. If you lose it, you must revoke the key and generate a new one.
+    </Warning>
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
 
-    ```bash
-    your-cli start
-    ```
+  <Step title="Make Your First Request">
+    Send a `POST` request to `/v1/completions` with your API key in the `Authorization` header. The example below asks Piixan AI to summarise the benefits of AI automation in three bullet points.
+
+    <CodeGroup>
+      ```bash curl
+      curl --request POST \
+        --url https://app.piixan.ai/v1/completions \
+        --header "Authorization: Bearer YOUR_API_KEY" \
+        --header "Content-Type: application/json" \
+        --data '{
+          "model": "piixan-1",
+          "prompt": "Summarize the benefits of AI automation in 3 bullet points.",
+          "max_tokens": 200
+        }'
+      ```
+
+      ```python Python
+      import requests
+
+      url = "https://app.piixan.ai/v1/completions"
+
+      headers = {
+          "Authorization": "Bearer YOUR_API_KEY",
+          "Content-Type": "application/json",
+      }
+
+      payload = {
+          "model": "piixan-1",
+          "prompt": "Summarize the benefits of AI automation in 3 bullet points.",
+          "max_tokens": 200,
+      }
+
+      response = requests.post(url, json=payload, headers=headers)
+      print(response.json())
+      ```
+    </CodeGroup>
+
+    Replace `YOUR_API_KEY` with the key you copied in the previous step. A successful response returns a JSON object containing a `choices` array with your AI-generated text.
+  </Step>
+
+  <Step title="Explore the Dashboard">
+    Head back to [app.piixan.ai](https://app.piixan.ai) to explore everything else the platform offers. From the dashboard you can create and run saved workflows, upload files for AI processing, monitor real-time usage and credit balance, manage team members and shared workspaces, and configure webhooks to receive event notifications in your own systems.
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+<Note>
+  Every new Piixan AI account includes free trial credits so you can explore the API and build a proof-of-concept at no cost. Check your remaining balance at any time by calling `GET /v1/usage` or visiting the **Usage** page in your dashboard.
+</Note>
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+<CardGroup cols={2}>
+  <Card title="Core Concepts" icon="book-open" href="concepts/overview">
+    Understand models, prompts, workflows, and other key building blocks of Piixan AI.
+  </Card>
+  <Card title="Build a Workflow" icon="bolt" href="guides/first-workflow">
+    Chain multiple AI steps into a reusable, automated pipeline with our step-by-step guide.
+  </Card>
+</CardGroup>

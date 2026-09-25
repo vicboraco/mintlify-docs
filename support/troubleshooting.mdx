@@ -1,0 +1,162 @@
+---
+title: "Troubleshoot Common Piixan AI Issues"
+sidebarTitle: "Troubleshooting"
+description: "Diagnose and fix the most common errors and issues in Piixan AI, from API authentication failures to slow responses and billing problems."
+---
+
+This page walks you through diagnosing and resolving the most common issues you may encounter while using Piixan AI — from authentication errors and failed API requests to misbehaving workflows. Work through the relevant section below, and if you're still stuck after following the steps, the [Getting Help](#getting-help) section at the bottom explains how to reach the support team with the information they need to resolve your issue quickly.
+
+## Authentication Issues
+
+<AccordionGroup>
+  <Accordion title="401 Unauthorized">
+    A `401 Unauthorized` response means the API rejected your credentials. The most common causes are:
+
+    **Check that your API key is correct.** Copy your key directly from [Settings → API Keys](https://app.piixan.ai/settings/api-keys) and paste it into your request — do not type it by hand or copy it from a secondary source where it may have been truncated.
+
+    **Check that the key hasn't been revoked.** In the API Keys dashboard, confirm the key shows a green **Active** status. If it shows **Revoked**, generate a new key.
+
+    **Check the Authorization header format.** The key must be passed as a Bearer token:
+
+    ```http
+    Authorization: Bearer pk_live_YOUR_API_KEY
+    ```
+
+    A common mistake is omitting the `Bearer ` prefix, or adding extra whitespace around the key value.
+
+    **Check that you're calling the correct base URL.** All requests must go to `https://app.piixan.ai/v1/`. Requests to any other URL will not accept your key.
+  </Accordion>
+
+  <Accordion title="403 Forbidden">
+    A `403 Forbidden` response means your request was authenticated successfully but the API key lacks the permissions required to perform the action you requested.
+
+    API keys can be scoped to a subset of operations when created. If your key was created with limited scopes (for example, read-only access), it cannot call write endpoints like `POST /v1/completions` or `POST /v1/workflows/run`.
+
+    **To resolve this:**
+
+    1. Go to [Settings → API Keys](https://app.piixan.ai/settings/api-keys).
+    2. Click **Create New Key**.
+    3. Under **Permissions**, select **Full Access** or the specific scopes you need.
+    4. Copy the new key and update your application to use it.
+
+    Do not edit the scopes on an existing key — create a fresh key with the correct permissions and revoke the old one once the new one is working.
+  </Accordion>
+</AccordionGroup>
+
+## Request Failures
+
+<AccordionGroup>
+  <Accordion title="422 Unprocessable Entity">
+    A `422 Unprocessable Entity` response means the API understood your request but could not process it because the request body is invalid or missing required fields.
+
+    **Check that you have included all required fields.** Every request to `POST /v1/completions` must include at minimum:
+
+    ```json
+    {
+      "model": "piixan-1",
+      "prompt": "Your prompt text here"
+    }
+    ```
+
+    **Check your JSON syntax.** A missing comma, unclosed bracket, or unescaped character can silently invalidate the entire body. Use a JSON validator or set `Content-Type: application/json` and inspect the raw payload before sending.
+
+    **Check field types.** For example, `max_tokens` must be an integer, not a string. The error response body usually includes a `details` array that identifies the specific field that failed validation — read it carefully.
+  </Accordion>
+
+  <Accordion title="429 Too Many Requests">
+    A `429 Too Many Requests` response means you have exceeded your plan's rate limit for the current window. Piixan AI enforces per-minute request limits per API key.
+
+    **Do not immediately retry.** Sending another request right away will also be rejected and may extend the time before your limit resets.
+
+    **Implement exponential backoff.** Wait before retrying, and increase the wait time with each subsequent attempt:
+
+    ```python
+    import time
+    import random
+
+    def request_with_backoff(fn, max_retries=5):
+        for attempt in range(max_retries):
+            response = fn()
+            if response.status_code != 429:
+                return response
+            wait = (2 ** attempt) + random.uniform(0, 1)
+            time.sleep(wait)
+        raise Exception("Max retries exceeded")
+    ```
+
+    **Check the `Retry-After` header.** The `429` response includes a `Retry-After` header specifying the number of seconds to wait before retrying. Honour this value to avoid further throttling.
+
+    For the full rate limit table by plan, see the [Rate Limits](/api-reference/rate-limits) reference page.
+  </Accordion>
+
+  <Accordion title="402 Payment Required">
+    A `402 Payment Required` response means your workspace has run out of credits. Piixan AI stops processing API requests and workflow runs when your balance reaches zero.
+
+    **To restore access immediately:**
+
+    1. Log in to your dashboard at [https://app.piixan.ai](https://app.piixan.ai).
+    2. Navigate to **Settings → Billing → Buy Credits**.
+    3. Select a credit pack and complete the purchase.
+
+    Credits are added to your balance the moment payment is confirmed — there is no processing delay. Your next API request will succeed immediately after purchase.
+
+    To avoid hitting zero credits in the future, set up [usage alert thresholds](/configuration/notifications#usage-alerts) to be notified before your balance runs out.
+  </Accordion>
+
+  <Accordion title="500 Internal Server Error">
+    A `500 Internal Server Error` response means something went wrong on Piixan AI's side. This is not caused by anything in your request.
+
+    **Wait a moment and retry.** Most 500 errors are transient and resolve within a few seconds. Implement the same exponential backoff pattern described in the `429` section above.
+
+    **Check the status page.** Visit [https://status.piixan.ai](https://status.piixan.ai) to see if there is an active incident affecting the API. If an incident is in progress, subscribe to updates on the status page rather than continuing to retry.
+
+    **Contact support if the error persists.** If you consistently receive `500` responses on the same request after several retries and no incident is listed on the status page, email [support@piixan.ai](mailto:support@piixan.ai) with the `X-Request-ID` value from the response headers so the team can investigate directly.
+  </Accordion>
+</AccordionGroup>
+
+## Workflow Problems
+
+<AccordionGroup>
+  <Accordion title="Workflow run is stuck in 'pending'">
+    A workflow run that stays in a `pending` state for more than a minute may indicate a queue delay or a silent failure during initialisation.
+
+    **Wait up to 60 seconds.** Brief delays are normal during periods of high platform load. Do not cancel and resubmit the run immediately — duplicate runs can lead to duplicate outputs.
+
+    **Poll the run status directly.** Use the `GET /v1/workflows` endpoint to check the current status programmatically rather than relying on the dashboard UI, which may cache stale state:
+
+    ```bash
+    curl https://app.piixan.ai/v1/workflows \
+      -H "Authorization: Bearer pk_live_YOUR_API_KEY"
+    ```
+
+    Look for the `status` field on your run object. A status of `running` means execution has started; `pending` after 60 seconds is worth escalating to support.
+
+    **Check for configuration errors.** A workflow that references a deleted file, a revoked API key in a connected integration, or a model that is no longer available may get stuck before it starts. Review the workflow's step configuration in the dashboard.
+  </Accordion>
+
+  <Accordion title="Workflow output is empty">
+    If a workflow run completes successfully but the output is blank, the most likely cause is a problem with the prompt template inside the workflow.
+
+    **Check for the `{{input}}` placeholder.** Piixan AI injects the value passed in the `input` field of your `POST /v1/workflows/run` request body into the prompt via the `{{input}}` placeholder. If this placeholder is missing or misspelled in your workflow's prompt template, the model receives an empty or incomplete prompt and returns minimal output.
+
+    Open the workflow in the dashboard, go to the **Prompt** step, and verify the template contains `{{input}}` exactly — it is case-sensitive.
+
+    **Check for syntax errors in template expressions.** If your prompt uses other template variables (for example `{{user_name}}` or `{{document_title}}`), make sure every opening `{{` has a matching closing `}}`. A malformed expression causes the entire template to render as an empty string.
+
+    **Test with a minimal prompt.** Temporarily replace your prompt template with a simple string like `"Summarise the following: {{input}}"` and run the workflow with a known input. If that works, the issue is in your original template, and you can narrow it down from there.
+  </Accordion>
+</AccordionGroup>
+
+## Getting Help
+
+If you have worked through the relevant sections above and are still experiencing an issue, the Piixan AI support team is here to help. Email [support@piixan.ai](mailto:support@piixan.ai) with the following information:
+
+- A description of the problem and the steps you have already tried
+- The exact error message and HTTP status code you received
+- The **`X-Request-ID`** value from the `response headers of the failing request
+- Your workspace ID (visible at the top of **Settings → General**)
+- The workflow ID if the issue relates to a specific workflow run
+
+<Tip>
+  The `X-Request-ID` header is the single most useful piece of information you can provide. It lets the support team pull up the exact server-side trace for your request in seconds — cutting what could be a lengthy back-and-forth investigation down to a single lookup. Always include it in your support email.
+</Tip>

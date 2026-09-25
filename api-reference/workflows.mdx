@@ -1,0 +1,210 @@
+---
+title: "Workflow Execution API — Run and List Workflows"
+sidebarTitle: "Workflows"
+description: "Execute saved workflows and list all workflows in your workspace. POST /v1/workflows/run and GET /v1/workflows API reference."
+---
+
+The Workflows API lets you programmatically trigger workflows you've built in the Piixan AI dashboard — passing inputs at runtime and retrieving outputs directly in your application, without any manual intervention.
+
+## Run a Workflow
+
+Execute a saved workflow by providing its ID and the input values it expects.
+
+```
+POST https://api.piixan.ai/v1/workflows/run
+```
+
+### Request Body
+
+<ParamField body="workflow_id" type="string" required>
+  The unique identifier of the workflow to execute. You can find this in the dashboard under your workflow's settings, or from the [List Workflows](#list-workflows) endpoint.
+</ParamField>
+
+<ParamField body="inputs" type="object" required>
+  A key/value map of input variables for the workflow. The keys must match the input variable names defined when the workflow was built. For example, `{"topic": "climate change", "tone": "formal"}`.
+</ParamField>
+
+### Response Body
+
+<ResponseField name="run_id" type="string">
+  A unique identifier for this workflow run, e.g., `run_xyz789`. Use this ID to correlate webhook events with a specific execution.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  The current state of the workflow run. One of:
+  - `pending` — queued and waiting to start
+  - `running` — currently executing
+  - `completed` — finished successfully
+  - `failed` — encountered an unrecoverable error
+</ResponseField>
+
+<ResponseField name="output" type="string | null">
+  The result produced by the workflow when it completes. `null` if the run has not yet finished or encountered an error.
+</ResponseField>
+
+<ResponseField name="error" type="string | null">
+  A human-readable error message if the run status is `failed`. `null` otherwise.
+</ResponseField>
+
+<ResponseField name="started_at" type="string">
+  ISO 8601 timestamp for when the workflow run began execution.
+</ResponseField>
+
+<ResponseField name="completed_at" type="string | null">
+  ISO 8601 timestamp for when the run finished. `null` if the workflow is still in progress.
+</ResponseField>
+
+### Example
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://api.piixan.ai/v1/workflows/run \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "workflow_id": "wf_abc123",
+    "inputs": {
+      "topic": "renewable energy",
+      "tone": "professional",
+      "word_count": "200"
+    }
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://api.piixan.ai/v1/workflows/run",
+    headers={
+        "Authorization": "Bearer YOUR_API_KEY",
+        "Content-Type": "application/json",
+    },
+    json={
+        "workflow_id": "wf_abc123",
+        "inputs": {
+            "topic": "renewable energy",
+            "tone": "professional",
+            "word_count": "200",
+        },
+    },
+)
+
+run = response.json()
+print(f"Run ID: {run['run_id']}, Status: {run['status']}")
+```
+
+</CodeGroup>
+
+**Example response:**
+
+```json
+{
+  "run_id": "run_xyz789",
+  "status": "completed",
+  "output": "Renewable energy sources such as solar and wind are rapidly becoming the backbone of modern power grids...",
+  "error": null,
+  "started_at": "2024-01-15T10:30:00Z",
+  "completed_at": "2024-01-15T10:30:04Z"
+}
+```
+
+<Note>
+  Workflows that involve multiple AI steps or large inputs may take longer than 10 seconds to complete. In those cases, the initial response will return a `status` of `pending` or `running`. Register a `workflow.completed` or `workflow.failed` [webhook](/api-reference/webhooks) to receive a notification the moment the run finishes, rather than polling repeatedly.
+</Note>
+
+---
+
+## List Workflows
+
+Retrieve a paginated list of all workflows in your workspace.
+
+```
+GET https://api.piixan.ai/v1/workflows
+```
+
+### Query Parameters
+
+<ParamField query="limit" type="integer" default={20}>
+  The maximum number of workflows to return per page. Accepted range is `1` to `100`.
+</ParamField>
+
+<ParamField query="offset" type="integer" default={0}>
+  The number of workflows to skip before returning results. Use with `limit` to paginate through your full workflow list.
+</ParamField>
+
+### Response Body
+
+<ResponseField name="workflows" type="array">
+  An array of workflow objects in your workspace.
+
+  <Expandable title="workflow object fields">
+    <ResponseField name="id" type="string">
+      The unique identifier for the workflow, e.g., `wf_abc123`.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      The human-readable name of the workflow as set in the dashboard.
+    </ResponseField>
+    <ResponseField name="description" type="string">
+      An optional description of what the workflow does.
+    </ResponseField>
+    <ResponseField name="created_at" type="string">
+      ISO 8601 timestamp for when the workflow was created.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="total" type="integer">
+  The total number of workflows in your workspace, regardless of pagination. Use this alongside `limit` and `offset` to determine how many pages exist.
+</ResponseField>
+
+### Example
+
+<CodeGroup>
+
+```bash cURL
+curl -G https://api.piixan.ai/v1/workflows \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  --data-urlencode "limit=5" \
+  --data-urlencode "offset=0"
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    "https://api.piixan.ai/v1/workflows",
+    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    params={"limit": 5, "offset": 0},
+)
+
+data = response.json()
+print(f"Total workflows: {data['total']}")
+for wf in data["workflows"]:
+    print(f"  - {wf['id']}: {wf['name']}")
+```
+
+</CodeGroup>
+
+**Example response:**
+
+```json
+{
+  "workflows": [
+    {
+      "id": "wf_abc123",
+      "name": "Blog Post Generator",
+      "description": "Generates a structured blog post from a topic and tone.",
+      "created_at": "2024-01-10T08:00:00Z"
+    },
+    {
+      "id": "wf_def456",
+      "name": "Support Email Responder",
+      "description": "Drafts a customer support reply based on ticket content.",
+      "created_at": "2024-01-12T14:22:00Z"
+    }
+  ],
+  "total": 2
+}
+```

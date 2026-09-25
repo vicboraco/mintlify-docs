@@ -1,0 +1,127 @@
+---
+title: "Generate Content with Piixan AI"
+sidebarTitle: "Content Generation"
+description: "Use Piixan AI to generate blog posts, product descriptions, emails, and marketing copy with customizable prompts and AI models."
+---
+
+Piixan AI turns plain-language instructions into polished, publish-ready content. Whether you need SEO-optimized blog posts, persuasive product descriptions, high-converting email subject lines, or social media copy, you can generate it all through the `/v1/completions` endpoint or the built-in Workflow Builder. The same model that powers your automated pipelines is available on demand, so every piece of content benefits from the same underlying intelligence.
+
+## Writing Effective Prompts
+
+The quality of AI-generated content is directly shaped by the quality of your prompt. A vague instruction produces a generic result; a precise, context-rich prompt produces content you can use with minimal editing. Keep these principles in mind:
+
+- **Be specific** — state the exact topic, angle, or argument you want the content to cover.
+- **Specify format, length, and tone** — tell the model whether you want a listicle or a narrative, 200 words or 800, formal or conversational.
+- **Include relevant context** — provide product details, target audience information, or brand guidelines directly in the prompt.
+- **Use examples** — paste a sample sentence or paragraph to show the model the style you are aiming for.
+
+The tabs below illustrate the difference a well-crafted prompt makes.
+
+<Tabs>
+  <Tab title="Vague Prompt">
+    ```text
+    Write something about our new headphones.
+    ```
+
+    This prompt gives the model almost no direction. The output will likely be generic, off-brand, and require heavy rewriting before it is usable.
+  </Tab>
+  <Tab title="Effective Prompt">
+    ```text
+    Write a 150-word product description for the SoundWave Pro noise-cancelling
+    headphones. The target audience is remote workers aged 25–40 who value focus
+    and audio quality. Use an enthusiastic but professional tone. Highlight the
+    40-hour battery life, foldable design, and multipoint Bluetooth pairing.
+    End with a clear call to action encouraging the reader to try them for 30 days.
+    ```
+
+    This prompt specifies the audience, tone, word count, key features, and desired ending — giving the model everything it needs to produce a near-final draft.
+  </Tab>
+</Tabs>
+
+## Content Types
+
+### Blog Posts
+
+Use a detailed prompt template to generate structured long-form articles. Pair the `piixan-1` model with a high `max_tokens` value for best results.
+
+```bash curl
+curl -X POST https://app.piixan.ai/v1/completions \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "piixan-1",
+    "system": "You are an expert content writer who specializes in technology and productivity topics.",
+    "prompt": "Write a 600-word blog post titled \"5 Ways AI Can Supercharge Your Morning Routine\". Use a friendly, motivational tone. Include a short intro, five numbered sections, and a brief conclusion.",
+    "max_tokens": 900,
+    "temperature": 0.7
+  }'
+```
+
+### Product Descriptions
+
+For e-commerce and landing pages, generate concise, benefit-focused copy that converts browsers into buyers.
+
+```bash curl
+curl -X POST https://app.piixan.ai/v1/completions \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "piixan-1",
+    "prompt": "Write a 100-word product description for an ergonomic standing desk converter. Highlight adjustable height, cable management, and a sturdy steel frame. Tone: professional and approachable.",
+    "max_tokens": 150,
+    "temperature": 0.6
+  }'
+```
+
+### Email Subject Lines
+
+When speed matters more than length, switch to `piixan-1-turbo` for fast, cost-efficient responses.
+
+```bash curl
+curl -X POST https://app.piixan.ai/v1/completions \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "piixan-1-turbo",
+    "prompt": "Generate 5 email subject lines for a Black Friday sale on productivity software. Make them urgent, benefit-driven, and under 50 characters each.",
+    "max_tokens": 100,
+    "temperature": 0.8
+  }'
+```
+
+## Using System Prompts
+
+The `system` field lets you set a persistent persona or set of instructions that applies to every completion in the request, separate from the user-facing `prompt`. Use it to define tone, role, brand voice, or formatting rules without repeating them in every prompt you write.
+
+```json
+{
+  "model": "piixan-1",
+  "system": "You are a professional copywriter for a luxury fashion brand. Always write in an elegant, aspirational tone. Never use casual slang or exclamation marks.",
+  "prompt": "Write a 80-word product description for a cashmere turtleneck sweater.",
+  "max_tokens": 120
+}
+```
+
+System prompts are especially powerful in workflows, where you set the persona once at the workflow level and it applies to every run automatically.
+
+## Controlling Output Format
+
+Three parameters give you fine-grained control over the shape and style of the generated content:
+
+- **`max_tokens`** — sets the hard upper limit on the response length. One token is roughly four characters of English text. Set this slightly above your target length to avoid cut-off responses.
+- **`temperature`** — a value between `0` and `1` that controls creativity. Values closer to `0` produce focused, deterministic output ideal for factual or structured content. Values closer to `1` introduce more variation and creativity, which works well for brainstorming and marketing copy.
+- **`stop`** — an array of strings that tell the model to stop generating as soon as it produces one of those sequences. Use this to trim unwanted trailing text. For example, `"stop": ["\n\n", "###"]` stops generation at the first blank line or markdown heading.
+
+```json
+{
+  "model": "piixan-1",
+  "prompt": "List three tagline ideas for a mindfulness app.",
+  "max_tokens": 200,
+  "temperature": 0.75,
+  "stop": ["4."]
+}
+```
+
+<Note>
+  If you are building a high-volume content pipeline — for example, generating descriptions for thousands of product SKUs — review your plan's rate limits on the [Usage page](https://app.piixan.ai/settings/usage) before you start. Exceeding the requests-per-minute limit will result in `429 Too Many Requests` errors. Consider adding retry logic with exponential backoff, or contact the Piixan AI team to discuss a higher-throughput plan.
+</Note>

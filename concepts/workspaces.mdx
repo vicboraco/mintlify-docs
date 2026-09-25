@@ -1,0 +1,64 @@
+---
+title: "Workspaces: Organize Your Piixan AI Projects"
+sidebarTitle: "Workspaces"
+description: "Workspaces in Piixan AI let you organize content, share outputs with teammates, and manage API access per project or team."
+---
+
+A workspace is the top-level container for everything you do in Piixan AI. Think of it as a dedicated environment for a specific team, project, or deployment stage — it holds your API keys, workflows, members, and usage history all in one place, completely isolated from your other workspaces. This isolation makes it straightforward to keep a marketing team's content generation separate from an engineering team's data pipeline, or to wall off a staging environment from production traffic.
+
+## What a Workspace Contains
+
+Every workspace bundles together the following resources:
+
+- **Members** — The people who have access to this workspace, each assigned a role that controls what they can see and do.
+- **API Keys** — Credentials scoped exclusively to this workspace. Any request authenticated with a workspace key consumes that workspace's credit balance.
+- **Workflows** — Saved automation pipelines built and run within the workspace context.
+- **Usage History** — A detailed log of every API request made under this workspace, with token counts and credit deductions, available from the dashboard and the `/v1/usage` endpoint.
+- **Settings** — Workspace-level configuration including the display name, description, default model, and billing details.
+
+## Creating a Workspace
+
+<Steps>
+  <Step title="Log in to Piixan AI">
+    Open [app.piixan.ai](https://app.piixan.ai) and sign in with your account credentials.
+  </Step>
+  <Step title="Open the workspace switcher">
+    Click your **avatar** in the top-right corner of the dashboard, then select **"New Workspace"** from the dropdown menu.
+  </Step>
+  <Step title="Name your workspace">
+    Enter a clear, descriptive name for the workspace (for example, `Marketing — Production` or `Data Team`). Optionally add a description so teammates understand its purpose at a glance.
+  </Step>
+  <Step title="Invite members">
+    Add teammates by email address and assign each one a role — **Admin**, **Editor**, or **Viewer**. You can skip this step and invite members later from the workspace's **Settings → Members** page.
+  </Step>
+</Steps>
+
+## Switching Workspaces
+
+If you belong to more than one workspace, you can switch between them at any time. Click the **workspace name** in the top-left dropdown of the dashboard — a list of all workspaces you have access to appears. Select the workspace you want to work in, and the dashboard, API key selector, and usage statistics all update to reflect that workspace's context.
+
+## Workspace-Scoped API Keys
+
+API keys in Piixan AI are always scoped to a single workspace. When you generate a key inside a workspace, every request authenticated with that key:
+
+1. Is authorized against that workspace's member permissions.
+2. Draws credits from that workspace's balance — not from any other workspace you own.
+3. Appears in that workspace's usage history log.
+
+To generate a new key, go to **Settings → API Keys** inside the target workspace at [app.piixan.ai/settings/api-keys](https://app.piixan.ai/settings/api-keys). You can create multiple keys per workspace (for example, one per service or environment) and revoke any of them independently.
+
+## Managing Members
+
+Assign roles to control what each member can do inside a workspace:
+
+| Role | Permissions |
+|---|---|
+| **Admin** | Full access: manage members, create and delete API keys, configure settings, view billing, run and delete workflows. |
+| **Editor** | Create and run workflows, upload files, view usage history. Cannot manage members, billing, or API keys. |
+| **Viewer** | Read-only access to workflows and usage history. Cannot run workflows or create API keys. |
+
+To change a member's role, navigate to **Settings → Members**, click the role badge next to their name, and select the new role from the dropdown.
+
+<Tip>
+  Create separate workspaces for your staging and production environments rather than sharing a single workspace across both. Separate workspaces give you isolated API keys, independent credit balances, and clean usage logs — so a surge in test traffic never inflates your production cost reports or risks exposing production credentials.
+</Tip>

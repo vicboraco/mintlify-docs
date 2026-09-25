@@ -1,0 +1,72 @@
+---
+title: "Collaborate with Your Team on Piixan AI"
+sidebarTitle: "Team Collaboration"
+description: "Invite teammates, assign roles, share workflows, and manage workspace access for your entire team in Piixan AI."
+---
+
+Piixan AI is designed for teams, not just individuals. A shared workspace lets everyone on your team create and run workflows, view AI outputs, and build on each other's work — all under a single account with centralized billing. Role-based access control means you decide exactly what each teammate can see and do, so you can give your whole organization access without worrying about accidental changes or unexpected costs.
+
+## Inviting Team Members
+
+<Steps>
+
+  <Step title="Open Team Settings">
+    Click your workspace name in the top-left corner of the dashboard, then select **Settings**. In the Settings sidebar, click **Team** to open the member management page.
+  </Step>
+
+  <Step title="Start the Invitation">
+    Click **Invite Member** in the top-right corner of the Team page. A dialog box opens prompting you for the new member's details.
+  </Step>
+
+  <Step title="Enter the Email Address">
+    Type the email address of the person you want to invite. You can invite multiple people at once by entering each address on a new line.
+  </Step>
+
+  <Step title="Select a Role">
+    Choose the appropriate role from the dropdown — **Admin**, **Editor**, or **Viewer**. See the [Roles and Permissions](#roles-and-permissions) section below if you are unsure which role to assign.
+  </Step>
+
+  <Step title="Send the Invite">
+    Click **Send Invite**. The recipient will receive an email with a secure link to join your workspace. The invitation expires after 7 days; you can resend it from the **Pending Invites** tab if needed.
+  </Step>
+
+</Steps>
+
+## Roles and Permissions
+
+Each role grants a specific set of permissions. Assign the most restrictive role that still lets the person do their job.
+
+| Role | Invite Members | Create Workflows | Run Workflows | View Usage | Billing |
+|------|:--------------:|:----------------:|:-------------:|:----------:|:-------:|
+| Admin | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Editor | ✗ | ✓ | ✓ | ✓ | ✗ |
+| Viewer | ✗ | ✗ | ✗ | ✓ | ✗ |
+
+- **Admin** — full control over the workspace, including billing and member management. Grant this role only to people who need to manage the account itself.
+- **Editor** — can build and run workflows and view usage data, but cannot invite new members or access billing. This is the right role for most contributors.
+- **Viewer** — read-only access to usage data. Useful for stakeholders who need visibility into AI consumption without the ability to make changes.
+
+## Sharing Workflows
+
+Every workflow you create lives inside your workspace and is visible to all members by default. You can change a workflow's visibility at any time from its settings panel.
+
+- **Workspace** (default) — all members with Editor or Admin roles can view, duplicate, and run the workflow. Admins can also edit or delete it.
+- **Private** — only you and workspace Admins can see or access the workflow. Use this setting while a workflow is still a draft or contains sensitive prompt logic you are not ready to share.
+
+To change visibility, open the workflow, click the **⋯** menu in the top-right corner, select **Settings**, and toggle the **Visibility** option. Changes take effect immediately.
+
+## Activity Log
+
+The Activity Log gives you a full audit trail of every action taken in your workspace — who ran which workflow, when they ran it, what inputs they provided, and whether it succeeded or failed.
+
+To view the log, go to **Settings** → **Activity**. You can filter entries by member, workflow, event type, or date range. Use the log to:
+
+- Debug unexpected outputs by reviewing exactly what inputs were passed.
+- Monitor usage patterns and identify which workflows are run most frequently.
+- Audit access during security reviews or compliance checks.
+
+Activity log entries are retained for 90 days on standard plans and 12 months on Enterprise plans.
+
+<Note>
+  Team plans are billed per seat — each active member counts toward your monthly seat total. Pending invitations do not consume a seat until the recipient accepts. If you need to free up a seat, you can deactivate a member from the **Team** settings page, which immediately revokes their access without deleting their workflows.
+</Note>

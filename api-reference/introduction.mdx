@@ -1,0 +1,90 @@
+---
+title: "Piixan AI REST API: Overview and Getting Started"
+sidebarTitle: "Introduction"
+description: "The Piixan AI REST API lets you integrate AI completions, workflows, and file processing into any application. Base URL and core concepts."
+---
+
+The Piixan AI REST API gives you programmatic access to all platform features — completions, workflows, file processing, and usage data. Whether you're embedding AI-generated content into your product, automating multi-step workflows, or tracking credit consumption, every capability available in the dashboard is also available over HTTP.
+
+## Base URL
+
+All API requests are made to the following base URL. Append the endpoint path to this root for every call you make.
+
+```text
+https://api.piixan.ai/v1
+```
+
+## Request Format
+
+Every request to the Piixan AI API must be made over HTTPS. Plain HTTP connections are rejected. POST requests must include a `Content-Type: application/json` header and send a JSON body. All requests — GET and POST alike — must include your API key as a Bearer token in the `Authorization` header.
+
+Use this curl template as a starting point for any endpoint:
+
+```bash
+curl --request POST \
+  --url https://api.piixan.ai/v1/{endpoint} \
+  --header "Authorization: Bearer YOUR_API_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "key": "value"
+  }'
+```
+
+## Response Format
+
+All responses from the API are returned as JSON objects. Successful responses include the requested data at the top level of the object alongside a `status` field.
+
+**Success response structure:**
+
+```json
+{
+  "status": "success",
+  "data": {
+    "id": "resp_01hxyz123456",
+    "created_at": "2024-06-01T12:00:00Z",
+    "result": "..."
+  }
+}
+```
+
+When a request cannot be completed, the API returns an error object that describes what went wrong. Use the `code` field to handle errors programmatically and the `message` field to surface a human-readable explanation.
+
+**Error response structure:**
+
+```json
+{
+  "error": {
+    "code": "invalid_api_key",
+    "message": "The provided API key is invalid."
+  }
+}
+```
+
+## HTTP Status Codes
+
+The API uses standard HTTP status codes to indicate the outcome of each request. Check the status code before attempting to parse the response body.
+
+| Code | Meaning                                      |
+|------|----------------------------------------------|
+| 200  | Success                                      |
+| 201  | Created                                      |
+| 400  | Bad Request                                  |
+| 401  | Unauthorized                                 |
+| 402  | Payment Required (no credits)                |
+| 403  | Forbidden                                    |
+| 422  | Unprocessable Entity                         |
+| 429  | Too Many Requests                            |
+| 500  | Internal Server Error                        |
+
+<Note>
+  Before making your first API call, you need a valid API key. See the [Authentication](/api-reference/authentication) page for step-by-step instructions on creating and managing your keys.
+</Note>
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/api-reference/authentication">
+    Learn how to create API keys, pass Bearer tokens, and understand key scopes and permission levels.
+  </Card>
+  <Card title="Rate Limits" icon="gauge-high" href="/api-reference/rate-limits">
+    Understand request limits by plan, read rate-limit headers, and implement retry logic for 429 errors.
+  </Card>
+</CardGroup>

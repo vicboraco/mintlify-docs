@@ -1,13 +1,11 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
-  "name": "Piixan AI",
+  "projectType": "saas",
+  "projectName": "Piixan AI",
+  "projectDescription": "Piixan AI is an intelligent AI-powered platform that helps users automate workflows, generate content, and unlock insights through advanced artificial intelligence.",
   "theme": "luma",
-  "colors": {
-    "primary": "#ef7025",
-    "light": "#eec9bc",
-    "dark": "#4fa1ab"
-  },
-  "favicon": "/favicon.svg",
+  "primaryColor": "#ef7025",
+  "lightColor": "#eec9bc",
+  "darkColor": "#4fa1ab",
   "navigation": {
     "tabs": [
       {
@@ -81,11 +79,23 @@
       }
     ]
   },
-  "navbar": {
-    "primary": {
-      "type": "button",
-      "label": "Get Started",
-      "href": "https://app.piixan.ai/signup"
-    }
-  }
+  "keyFeatures": [
+    "AI-powered content generation and automation",
+    "Multi-model AI support for diverse tasks",
+    "Team workspaces with collaboration tools",
+    "Workflow automation and orchestration",
+    "REST API for programmatic access",
+    "Webhook integrations with third-party services",
+    "Usage-based credit system with transparent pricing",
+    "Real-time processing with low-latency responses"
+  ],
+  "publicApiSurface": [
+    "POST /v1/completions — generate AI completions",
+    "POST /v1/workflows/run — execute a saved workflow",
+    "GET /v1/workflows — list workflows",
+    "POST /v1/files/upload — upload files for AI processing",
+    "GET /v1/files/{id} — retrieve a file",
+    "POST /v1/webhooks — register a webhook endpoint",
+    "GET /v1/usage — retrieve usage and credit balance"
+  ]
 }

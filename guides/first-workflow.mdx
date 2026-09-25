@@ -1,0 +1,81 @@
+---
+title: "Build Your First Workflow in Piixan AI"
+sidebarTitle: "First Workflow"
+description: "Learn how to create, configure, and run a Piixan AI workflow that chains AI steps together to automate a task end to end."
+---
+
+Workflows are named, reusable pipelines that chain one or more AI steps together to automate a task from start to finish. Instead of writing the same prompt repeatedly, you define a workflow once, save it, and invoke it whenever you need — either from the dashboard or programmatically via the API. Each step in a workflow can transform, enrich, or route data, giving you full control over how AI fits into your processes.
+
+<Steps>
+
+  <Step title="Open the Workflow Builder">
+    In the left sidebar, click **Workflows**. On the Workflows page, click **New Workflow** in the top-right corner. The Workflow Builder opens with a blank canvas ready for your first step.
+  </Step>
+
+  <Step title="Name Your Workflow">
+    At the top of the canvas, click the default name (e.g., *Untitled Workflow*) and type a descriptive name that reflects what the workflow does — for example, **Product Description Generator** or **Support Email Responder**. A clear name makes it easy to find and reuse the workflow later.
+  </Step>
+
+  <Step title="Add an AI Step">
+    Click **+ Add Step** and select **AI Completion** from the step menu. In the step configuration panel on the right:
+
+    - Set **Model** to `piixan-1`.
+    - Write your prompt in the **Prompt Template** field. Use the `{{input}}` placeholder wherever you want to inject dynamic data at runtime. For example:
+
+    ```text
+    Write a compelling product description for the following item:
+
+    {{input}}
+
+    Keep the tone enthusiastic and the length under 100 words.
+    ```
+
+    The `{{input}}` placeholder is automatically populated with the value you supply when you run the workflow.
+  </Step>
+
+  <Step title="Configure Output">
+    In the **Output** section of the step panel:
+
+    - Choose an **Output Format**: select **Text** for plain prose or **JSON** if you need structured data your application can parse.
+    - Set **Max Tokens** to control the maximum length of the AI's response. For short descriptions, `150` is a good starting point; for long-form content, increase this to `500` or more.
+
+    Click **Save Step** when you are satisfied with the configuration.
+  </Step>
+
+  <Step title="Run the Workflow">
+    Click the **Run** button in the top toolbar. A panel slides in prompting you for a sample input value. Enter a test input — for example, *noise-cancelling headphones* — and click **Submit**. Piixan AI executes the workflow and displays the output directly in the run panel. Review the result, adjust your prompt or settings if needed, and click **Save Workflow** to publish it.
+  </Step>
+
+</Steps>
+
+## Running a Workflow via API
+
+Once your workflow is saved, you can trigger it programmatically from any application. Send a `POST` request to `/v1/workflows/run` with the workflow ID and your input values. You can find the workflow ID on the workflow's detail page in the dashboard.
+
+```bash curl
+curl -X POST https://app.piixan.ai/v1/workflows/run \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "workflow_id": "wf_abc123",
+    "inputs": {
+      "input": "Write a product description for noise-cancelling headphones."
+    }
+  }'
+```
+
+A successful response returns a `run_id`, the final `status`, and the workflow `output`:
+
+```json
+{
+  "run_id": "run_xyz789",
+  "status": "completed",
+  "output": "Experience crystal-clear audio wherever you go. These noise-cancelling headphones deliver rich, immersive sound while blocking out the world around you — perfect for commuters, remote workers, and music lovers alike."
+}
+```
+
+If the run is still processing when you receive the response (for long-running workflows), the `status` field will be `"running"`. Poll `GET /v1/workflows/runs/{run_id}` until the status transitions to `"completed"` or `"failed"`.
+
+<Tip>
+  Save your most-used prompt patterns as workflow templates. Duplicate any existing workflow from the Workflows page to create a new variant without starting from scratch — this is especially useful when building multiple workflows that share a common structure or system prompt.
+</Tip>

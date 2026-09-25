@@ -1,0 +1,151 @@
+---
+title: "Webhook Registration and Events API for Piixan AI"
+sidebarTitle: "Webhooks"
+description: "Register webhook endpoints to receive real-time Piixan AI event notifications. POST /v1/webhooks API reference and payload examples."
+---
+
+Webhooks push real-time event notifications to your server the moment key events occur in Piixan AI — eliminating the need to poll for status updates and letting your application react instantly to workflow completions, failures, and credit alerts.
+
+## Available Events
+
+Register a webhook for one or more of the following events:
+
+| Event | Description |
+|-------|-------------|
+| `workflow.completed` | A workflow run finished successfully and output is available |
+| `workflow.failed` | A workflow run encountered an error and could not complete |
+| `usage.threshold_reached` | Your credit balance has crossed a configured threshold |
+
+---
+
+## Register a Webhook
+
+Create a new webhook endpoint to start receiving event notifications.
+
+```
+POST https://api.piixan.ai/v1/webhooks
+```
+
+### Request Body
+
+<ParamField body="url" type="string" required>
+  The publicly accessible HTTPS URL where Piixan AI will send POST requests when a matching event occurs. Must use `https://`.
+</ParamField>
+
+<ParamField body="events" type="string[]" required>
+  An array of event names to subscribe to. At least one event is required. Example: `["workflow.completed", "workflow.failed"]`. See the [Available Events](#available-events) table for valid values.
+</ParamField>
+
+<ParamField body="secret" type="string">
+  An optional secret string used to sign webhook payloads. When provided, Piixan AI includes an `X-Piixan-Signature` header on every request so you can verify the payload is authentic. See [Verifying Webhook Signatures](#verifying-webhook-signatures).
+</ParamField>
+
+### Response Body
+
+<ResponseField name="id" type="string">
+  The unique identifier for the registered webhook, e.g., `wh_k7m2p9`.
+</ResponseField>
+
+<ResponseField name="url" type="string">
+  The endpoint URL you registered.
+</ResponseField>
+
+<ResponseField name="events" type="string[]">
+  The list of events this webhook is subscribed to.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp for when the webhook was registered.
+</ResponseField>
+
+### Example
+
+```bash cURL
+curl -X POST https://api.piixan.ai/v1/webhooks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://your-app.com/webhooks/piixan",
+    "events": ["workflow.completed", "workflow.failed"],
+    "secret": "your_signing_secret"
+  }'
+```
+
+**Example response:**
+
+```json
+{
+  "id": "wh_k7m2p9",
+  "url": "https://your-app.com/webhooks/piixan",
+  "events": ["workflow.completed", "workflow.failed"],
+  "created_at": "2024-01-15T10:00:00Z"
+}
+```
+
+---
+
+## Webhook Payload
+
+When a subscribed event fires, Piixan AI sends an HTTP POST to your registered URL with a JSON body. Below is an example payload for a `workflow.completed` event:
+
+```json
+{
+  "event": "workflow.completed",
+  "run_id": "run_xyz789",
+  "workflow_id": "wf_abc123",
+  "output": "Renewable energy sources such as solar and wind are rapidly becoming...",
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+Your endpoint must return a `2xx` HTTP status code within **5 seconds** to acknowledge receipt. If it does not, Piixan AI will retry delivery up to three times with exponential backoff.
+
+---
+
+## Verifying Webhook Signatures
+
+When you register a webhook with a `secret`, Piixan AI signs every payload and includes the signature in the `X-Piixan-Signature` header in the format `sha256=<hmac>`. Verify this signature on your server before processing the payload to confirm it genuinely came from Piixan AI.
+
+```python Python — Signature Verification
+import hashlib
+import hmac
+from flask import Flask, request, abort
+
+app = Flask(__name__)
+
+WEBHOOK_SECRET = "your_signing_secret"
+
+
+@app.route("/webhooks/piixan", methods=["POST"])
+def handle_webhook():
+    # Retrieve the raw request body and the signature header
+    payload = request.get_data()
+    signature_header = request.headers.get("X-Piixan-Signature", "")
+
+    # Extract the HMAC hex digest after "sha256="
+    if not signature_header.startswith("sha256="):
+        abort(400, "Missing or malformed signature header")
+
+    received_sig = signature_header[len("sha256="):]
+
+    # Compute the expected HMAC-SHA256 signature
+    expected_sig = hmac.new(
+        WEBHOOK_SECRET.encode("utf-8"),
+        payload,
+        hashlib.sha256,
+    ).hexdigest()
+
+    # Use compare_digest to prevent timing attacks
+    if not hmac.compare_digest(expected_sig, received_sig):
+        abort(403, "Signature verification failed")
+
+    # Signature is valid — process the event
+    event = request.get_json()
+    print(f"Received event: {event['event']} for run {event.get('run_id')}")
+
+    return "", 200
+```
+
+<Tip>
+  Testing webhooks locally is straightforward with a tunnelling tool like [ngrok](https://ngrok.com) — run `ngrok http 5000` to expose your local server and use the generated `https://` URL as your webhook endpoint. Alternatively, use the built-in **Webhook Tester** in the Piixan AI dashboard (under **Settings → Webhooks**) to send test payloads to any registered endpoint without writing a single line of code.
+</Tip>

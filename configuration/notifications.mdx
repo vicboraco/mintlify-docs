@@ -1,0 +1,55 @@
+---
+title: "Configure Notifications in Piixan AI"
+sidebarTitle: "Notifications"
+description: "Set up email and webhook notifications for workflow completions, credit usage alerts, billing events, and team activity across your Piixan AI workspace."
+---
+
+Piixan AI can keep you informed about what matters most through two notification channels: email and webhooks. Whether you want an email when a long-running workflow finishes or an automated webhook payload when your credits drop below a threshold, you have full control over what triggers an alert and how it reaches you.
+
+## Email Notifications
+
+Navigate to **Settings → Notifications** in your dashboard to manage your email notification preferences. Each event type has an independent toggle, so you can subscribe only to the alerts that are relevant to you.
+
+| Notification | Trigger |
+|---|---|
+| **Workflow Completed** | A workflow run finishes successfully |
+| **Workflow Failed** | A workflow run encounters an error and stops |
+| **Usage Threshold — 80%** | Your credit balance drops to 20% remaining |
+| **Usage Threshold — 100%** | Your credit balance is fully exhausted |
+| **New Team Member Joined** | Someone accepts an invitation to your workspace |
+| **Billing Receipts** | A payment is processed or a subscription renews |
+
+To update any of these settings, toggle the switch next to the event name and your preferences are saved automatically — there is no separate save button.
+
+## Usage Alerts
+
+Usage alerts let you set a specific credit balance threshold that triggers a notification before you run out of credits unexpectedly.
+
+<Steps>
+  <Step title="Open Usage Alert Settings">
+    Go to **Settings → Notifications → Usage Alerts** in your Piixan AI dashboard.
+  </Step>
+  <Step title="Enter a Threshold Amount">
+    Type the credit balance at which you want to be alerted. For example, enter `500` to be notified when your balance falls below 500 credits.
+  </Step>
+  <Step title="Choose Notification Channels">
+    Select **Email**, **Webhook**, or both. If you choose webhook, enter the URL of the endpoint that should receive the alert payload.
+  </Step>
+  <Step title="Save the Alert">
+    Click **Add Alert**. The new threshold appears in your active alerts list immediately.
+  </Step>
+</Steps>
+
+<Tip>
+  Set multiple thresholds — for example at 50%, 80%, and 100% of your monthly budget — so you have progressively stronger signals as you approach your limit. This gives you time to purchase additional credits before requests start failing with a `402 Payment Required` error.
+</Tip>
+
+## Webhook Notifications
+
+Any notification that can be delivered by email can also be sent as a webhook `POST` request to an endpoint of your choice. Webhook notifications carry a structured JSON payload so you can fan them out to Slack, PagerDuty, or your own internal systems without any polling.
+
+To set up a webhook destination for notifications, follow the steps in the [Integrations guide](/guides/integrations). Once your webhook endpoint is registered, return to **Settings → Notifications** and select it from the **Webhook Destination** dropdown for each event you want to route there.
+
+<Note>
+  Notification delivery can be delayed by up to 5 minutes after the triggering event occurs. If you require real-time visibility into workflow status, use the `GET /v1/workflows` endpoint to poll run status directly rather than relying solely on notification delivery.
+</Note>
