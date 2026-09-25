@@ -1,5 +1,5 @@
 ---
-title: "API Rate Limits for Piixan AI"
+title: "Piixan AI API Rate Limits: Plans, Headers, and Retries"
 sidebarTitle: "Rate Limits"
 description: "Understand Piixan AI API rate limits by plan, read response headers to track usage, and implement retry logic to handle 429 errors gracefully."
 ---
@@ -36,7 +36,7 @@ Run a request with `--include` to inspect these headers directly:
 ```bash
 curl --include --request GET \
   --url https://api.piixan.ai/v1/workflows \
-  --header "Authorization: Bearer YOUR_API_KEY"
+  --header "Authorization: Bearer sk-live-abc123def456"
 ```
 
 Example response headers:
@@ -51,26 +51,39 @@ X-RateLimit-Reset: 1717243260
 
 ## Handling 429 Errors
 
-When your client receives a `429 Too Many Requests` response, pause and retry the request after a brief delay. Use exponential backoff so that repeated failures don't create a thundering-herd problem. The Python example below demonstrates a simple retry wrapper you can drop into any integration.
+When your client receives a `429 Too Many Requests` response, pause and retry the request after a brief delay. Use exponential backoff so that repeated failures do not create a thundering-herd problem against the API. The Python example below demonstrates a retry wrapper with jitter that you can drop into any integration.
 
 ```python
 import time
+import random
 import requests
 
-def call_with_retry(url, headers, json_body, max_retries=3):
+API_KEY = "sk-live-abc123def456"  # replace with your key
+
+def call_with_retry(url, headers, json_body, max_retries=4):
+    """POST with exponential backoff on 429 responses."""
     for attempt in range(max_retries):
         resp = requests.post(url, headers=headers, json=json_body)
-        if resp.status_code == 429:
-            wait = 2 ** attempt  # 1s, 2s, 4s
-            time.sleep(wait)
-            continue
-        return resp
-    raise Exception("Max retries exceeded")
+
+        if resp.status_code != 429:
+            return resp
+
+        # Honour Retry-After when the server provides it
+        retry_after = resp.headers.get("Retry-After")
+        if retry_after:
+            wait = float(retry_after)
+        else:
+            # Exponential backoff: 1s, 2s, 4s, 8s … plus random jitter
+            wait = (2 ** attempt) + random.uniform(0, 0.5)
+
+        time.sleep(wait)
+
+    raise Exception(f"Request failed after {max_retries} retries")
 
 
-# Example usage
+# Example: generate a completion with automatic retry
 api_headers = {
-    "Authorization": "Bearer YOUR_API_KEY",
+    "Authorization": f"Bearer {API_KEY}",
     "Content-Type": "application/json",
 }
 payload = {

@@ -1,7 +1,7 @@
 ---
-title: "AI Models Available in Piixan AI"
+title: "Piixan AI Models: Choose the Right Model for Your Task"
 sidebarTitle: "AI Models"
-description: "Explore the AI models available in Piixan AI. Each model is optimized for different tasks, from fast completions to deep reasoning."
+description: "Compare piixan-1, piixan-1-turbo, and piixan-pro to pick the model that best balances speed, reasoning depth, and credit cost for your task."
 ---
 
 Choosing the right model is one of the most impactful decisions you'll make when building with Piixan AI. Each model represents a different trade-off between speed, reasoning depth, and credit cost — selecting the best fit for your task means your application runs faster, stays within budget, and delivers the quality your users expect.
@@ -33,8 +33,8 @@ Pass the `model` field in your request body when calling `POST /v1/completions`.
 <CodeGroup>
 ```bash cURL
 curl --request POST \
-  --url https://app.piixan.ai/v1/completions \
-  --header 'Authorization: Bearer YOUR_API_KEY' \
+  --url https://api.piixan.ai/v1/completions \
+  --header 'Authorization: Bearer pk_live_abc123xyz' \
   --header 'Content-Type: application/json' \
   --data '{
     "model": "piixan-1",
@@ -48,9 +48,9 @@ curl --request POST \
 import requests
 
 response = requests.post(
-    "https://app.piixan.ai/v1/completions",
+    "https://api.piixan.ai/v1/completions",
     headers={
-        "Authorization": "Bearer YOUR_API_KEY",
+        "Authorization": "Bearer pk_live_abc123xyz",
         "Content-Type": "application/json",
     },
     json={
@@ -65,10 +65,10 @@ print(response.json())
 ```
 
 ```javascript Node.js
-const response = await fetch("https://app.piixan.ai/v1/completions", {
+const response = await fetch("https://api.piixan.ai/v1/completions", {
   method: "POST",
   headers: {
-    Authorization: "Bearer YOUR_API_KEY",
+    Authorization: "Bearer pk_live_abc123xyz",
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
@@ -83,6 +83,26 @@ const data = await response.json();
 console.log(data);
 ```
 </CodeGroup>
+
+A successful response looks like this:
+
+```json
+{
+  "id": "cmpl_7Kx2mNpQrT9vBwLs",
+  "model": "piixan-1",
+  "choices": [
+    {
+      "text": "• No server management — the cloud provider handles provisioning and scaling automatically.\n• Pay-per-execution pricing — you only pay when your code runs, not for idle capacity.\n• Instant scalability — functions scale to zero and back up with no configuration required.",
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "input_tokens": 18,
+    "output_tokens": 61,
+    "total_tokens": 79
+  }
+}
+```
 
 <Note>
   Model availability depends on your plan tier. `piixan-1` and `piixan-1-turbo` are available on all plans, including Starter. `piixan-pro` requires a Growth plan or higher. Check your current plan at [app.piixan.ai/settings/billing](https://app.piixan.ai/settings/billing).

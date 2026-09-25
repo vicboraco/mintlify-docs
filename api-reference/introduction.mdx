@@ -1,7 +1,7 @@
 ---
-title: "Piixan AI REST API: Overview and Getting Started"
+title: "Piixan AI REST API Overview: Base URL and Core Concepts"
 sidebarTitle: "Introduction"
-description: "The Piixan AI REST API lets you integrate AI completions, workflows, and file processing into any application. Base URL and core concepts."
+description: "The Piixan AI REST API gives you programmatic access to AI completions, workflows, file processing, and usage data from any HTTP client."
 ---
 
 The Piixan AI REST API gives you programmatic access to all platform features — completions, workflows, file processing, and usage data. Whether you're embedding AI-generated content into your product, automating multi-step workflows, or tracking credit consumption, every capability available in the dashboard is also available over HTTP.
@@ -23,7 +23,7 @@ Use this curl template as a starting point for any endpoint:
 ```bash
 curl --request POST \
   --url https://api.piixan.ai/v1/{endpoint} \
-  --header "Authorization: Bearer YOUR_API_KEY" \
+  --header "Authorization: Bearer sk-live-abc123def456" \
   --header "Content-Type: application/json" \
   --data '{
     "key": "value"
@@ -70,7 +70,7 @@ The API uses standard HTTP status codes to indicate the outcome of each request.
 | 201  | Created                                      |
 | 400  | Bad Request                                  |
 | 401  | Unauthorized                                 |
-| 402  | Payment Required (no credits)                |
+| 402  | Payment Required (no credits remaining)      |
 | 403  | Forbidden                                    |
 | 422  | Unprocessable Entity                         |
 | 429  | Too Many Requests                            |

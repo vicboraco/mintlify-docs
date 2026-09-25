@@ -1,7 +1,7 @@
 ---
-title: "Workflow Execution API — Run and List Workflows"
+title: "Piixan AI Workflows API: Run and List Saved Workflows"
 sidebarTitle: "Workflows"
-description: "Execute saved workflows and list all workflows in your workspace. POST /v1/workflows/run and GET /v1/workflows API reference."
+description: "Execute saved workflows and retrieve your workspace's workflow list using the Piixan AI Workflows API. Covers POST /v1/workflows/run and GET /v1/workflows."
 ---
 
 The Workflows API lets you programmatically trigger workflows you've built in the Piixan AI dashboard — passing inputs at runtime and retrieving outputs directly in your application, without any manual intervention.
@@ -10,7 +10,7 @@ The Workflows API lets you programmatically trigger workflows you've built in th
 
 Execute a saved workflow by providing its ID and the input values it expects.
 
-```
+```text
 POST https://api.piixan.ai/v1/workflows/run
 ```
 
@@ -60,7 +60,7 @@ POST https://api.piixan.ai/v1/workflows/run
 
 ```bash cURL
 curl -X POST https://api.piixan.ai/v1/workflows/run \
-  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Authorization: Bearer <YOUR_API_KEY>" \
   -H "Content-Type: application/json" \
   -d '{
     "workflow_id": "wf_abc123",
@@ -78,7 +78,7 @@ import requests
 response = requests.post(
     "https://api.piixan.ai/v1/workflows/run",
     headers={
-        "Authorization": "Bearer YOUR_API_KEY",
+        "Authorization": "Bearer <YOUR_API_KEY>",
         "Content-Type": "application/json",
     },
     json={
@@ -120,7 +120,7 @@ print(f"Run ID: {run['run_id']}, Status: {run['status']}")
 
 Retrieve a paginated list of all workflows in your workspace.
 
-```
+```text
 GET https://api.piixan.ai/v1/workflows
 ```
 
@@ -165,7 +165,7 @@ GET https://api.piixan.ai/v1/workflows
 
 ```bash cURL
 curl -G https://api.piixan.ai/v1/workflows \
-  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Authorization: Bearer <YOUR_API_KEY>" \
   --data-urlencode "limit=5" \
   --data-urlencode "offset=0"
 ```
@@ -175,7 +175,7 @@ import requests
 
 response = requests.get(
     "https://api.piixan.ai/v1/workflows",
-    headers={"Authorization": "Bearer YOUR_API_KEY"},
+    headers={"Authorization": "Bearer <YOUR_API_KEY>"},
     params={"limit": 5, "offset": 0},
 )
 

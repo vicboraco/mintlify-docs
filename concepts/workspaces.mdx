@@ -1,7 +1,7 @@
 ---
-title: "Workspaces: Organize Your Piixan AI Projects"
+title: "Piixan AI Workspaces: Organize Teams and API Access"
 sidebarTitle: "Workspaces"
-description: "Workspaces in Piixan AI let you organize content, share outputs with teammates, and manage API access per project or team."
+description: "Learn how Piixan AI workspaces isolate API keys, members, workflows, and usage history so each team or project stays fully independent."
 ---
 
 A workspace is the top-level container for everything you do in Piixan AI. Think of it as a dedicated environment for a specific team, project, or deployment stage — it holds your API keys, workflows, members, and usage history all in one place, completely isolated from your other workspaces. This isolation makes it straightforward to keep a marketing team's content generation separate from an engineering team's data pipeline, or to wall off a staging environment from production traffic.
@@ -13,7 +13,7 @@ Every workspace bundles together the following resources:
 - **Members** — The people who have access to this workspace, each assigned a role that controls what they can see and do.
 - **API Keys** — Credentials scoped exclusively to this workspace. Any request authenticated with a workspace key consumes that workspace's credit balance.
 - **Workflows** — Saved automation pipelines built and run within the workspace context.
-- **Usage History** — A detailed log of every API request made under this workspace, with token counts and credit deductions, available from the dashboard and the `/v1/usage` endpoint.
+- **Usage History** — A detailed log of every API request made under this workspace, with token counts and credit deductions, available from the dashboard and the `GET /v1/usage` endpoint.
 - **Settings** — Workspace-level configuration including the display name, description, default model, and billing details.
 
 ## Creating a Workspace

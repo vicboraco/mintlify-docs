@@ -1,7 +1,7 @@
 ---
-title: "Generate Content with Piixan AI"
+title: "Generate AI-Powered Content Using Piixan AI Models"
 sidebarTitle: "Content Generation"
-description: "Use Piixan AI to generate blog posts, product descriptions, emails, and marketing copy with customizable prompts and AI models."
+description: "Use Piixan AI to generate blog posts, product descriptions, emails, and marketing copy using customizable prompts and AI model parameters."
 ---
 
 Piixan AI turns plain-language instructions into polished, publish-ready content. Whether you need SEO-optimized blog posts, persuasive product descriptions, high-converting email subject lines, or social media copy, you can generate it all through the `/v1/completions` endpoint or the built-in Workflow Builder. The same model that powers your automated pipelines is available on demand, so every piece of content benefits from the same underlying intelligence.
@@ -45,7 +45,7 @@ The tabs below illustrate the difference a well-crafted prompt makes.
 Use a detailed prompt template to generate structured long-form articles. Pair the `piixan-1` model with a high `max_tokens` value for best results.
 
 ```bash curl
-curl -X POST https://app.piixan.ai/v1/completions \
+curl -X POST https://api.piixan.ai/v1/completions \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -62,7 +62,7 @@ curl -X POST https://app.piixan.ai/v1/completions \
 For e-commerce and landing pages, generate concise, benefit-focused copy that converts browsers into buyers.
 
 ```bash curl
-curl -X POST https://app.piixan.ai/v1/completions \
+curl -X POST https://api.piixan.ai/v1/completions \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -75,10 +75,10 @@ curl -X POST https://app.piixan.ai/v1/completions \
 
 ### Email Subject Lines
 
-When speed matters more than length, switch to `piixan-1-turbo` for fast, cost-efficient responses.
+For short, high-volume generation tasks, use `piixan-1-turbo` to get fast, cost-efficient responses without sacrificing quality on concise outputs.
 
 ```bash curl
-curl -X POST https://app.piixan.ai/v1/completions \
+curl -X POST https://api.piixan.ai/v1/completions \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -108,9 +108,9 @@ System prompts are especially powerful in workflows, where you set the persona o
 
 Three parameters give you fine-grained control over the shape and style of the generated content:
 
-- **`max_tokens`** — sets the hard upper limit on the response length. One token is roughly four characters of English text. Set this slightly above your target length to avoid cut-off responses.
-- **`temperature`** — a value between `0` and `1` that controls creativity. Values closer to `0` produce focused, deterministic output ideal for factual or structured content. Values closer to `1` introduce more variation and creativity, which works well for brainstorming and marketing copy.
-- **`stop`** — an array of strings that tell the model to stop generating as soon as it produces one of those sequences. Use this to trim unwanted trailing text. For example, `"stop": ["\n\n", "###"]` stops generation at the first blank line or markdown heading.
+- **`max_tokens`** — sets the hard upper limit on how long the response can be. One token is roughly four characters of English text. Set this slightly above your target word count to avoid cut-off responses. For a 100-word description, a value of `150` gives the model enough room to finish naturally.
+- **`temperature`** — controls how creative or predictable the output is, on a scale from `0` to `1`. Lower values (e.g., `0.2`) produce focused, consistent results — ideal for structured content like product descriptions or summaries. Higher values (e.g., `0.8`) introduce more variety and originality, which works well for brainstorming, taglines, and marketing copy.
+- **`stop`** — an array of strings that tell the model to stop generating as soon as it produces one of those sequences. Use this to trim unwanted trailing text and keep responses clean. For example, `"stop": ["\n\n", "###"]` stops generation at the first blank line or markdown heading, which is useful when generating a single paragraph or section.
 
 ```json
 {

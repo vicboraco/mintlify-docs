@@ -1,12 +1,12 @@
 ---
-title: "POST /v1/completions — AI Text Completions API"
+title: "POST /v1/completions: AI Text Completions Reference"
 sidebarTitle: "Completions"
-description: "Generate AI text completions with Piixan AI. POST /v1/completions accepts a model, prompt, and options. Returns generated text."
+description: "Generate AI-powered text completions with Piixan AI. Control the model, temperature, token limits, and stream responses in real time via REST API."
 ---
 
 The completions endpoint is the core of Piixan AI. Send a prompt and receive AI-generated text tailored to your use case — whether you're drafting content, answering questions, or powering an intelligent feature inside your product.
 
-```
+```text
 POST https://api.piixan.ai/v1/completions
 ```
 
@@ -83,7 +83,7 @@ POST https://api.piixan.ai/v1/completions
 
 ```bash cURL
 curl -X POST https://api.piixan.ai/v1/completions \
-  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Authorization: Bearer <YOUR_API_KEY>" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "piixan-1",
@@ -100,7 +100,7 @@ import requests
 response = requests.post(
     "https://api.piixan.ai/v1/completions",
     headers={
-        "Authorization": "Bearer YOUR_API_KEY",
+        "Authorization": "Bearer <YOUR_API_KEY>",
         "Content-Type": "application/json",
     },
     json={
@@ -140,13 +140,13 @@ When you set `"stream": true`, Piixan AI returns the response as a stream of Ser
 
 The stream closes with a final `[DONE]` message. Non-streaming fields like `id` and `usage` are sent as a terminal event before the stream ends.
 
-```python Python — Streaming
+```python Python
 import requests
 
 response = requests.post(
     "https://api.piixan.ai/v1/completions",
     headers={
-        "Authorization": "Bearer YOUR_API_KEY",
+        "Authorization": "Bearer <YOUR_API_KEY>",
         "Content-Type": "application/json",
     },
     json={

@@ -1,7 +1,7 @@
 ---
-title: "File Upload and Retrieval API for Piixan AI"
+title: "File Upload and Retrieval API Reference — Piixan AI"
 sidebarTitle: "Files"
-description: "Upload files to Piixan AI for AI processing. POST /v1/files/upload and GET /v1/files/{id} REST API reference with examples."
+description: "Use the Piixan AI Files API to upload PDFs, images, and documents for AI processing. Reference for POST /v1/files/upload and GET /v1/files/{id} endpoints."
 ---
 
 Upload files to use as context in your completions and workflows — giving the AI direct access to your documents, data, and images. Piixan AI supports PDF, DOCX, TXT, CSV, PNG, and JPG files up to 20 MB each.
@@ -10,7 +10,7 @@ Upload files to use as context in your completions and workflows — giving the 
 
 Send a file to Piixan AI and receive a file ID you can reference in subsequent API calls.
 
-```
+```text
 POST https://api.piixan.ai/v1/files/upload
 ```
 
@@ -56,7 +56,7 @@ POST https://api.piixan.ai/v1/files/upload
 
 ```bash cURL
 curl -X POST https://api.piixan.ai/v1/files/upload \
-  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Authorization: Bearer <YOUR_API_KEY>" \
   -F "file=@/path/to/your/document.pdf" \
   -F "purpose=context"
 ```
@@ -79,7 +79,7 @@ curl -X POST https://api.piixan.ai/v1/files/upload \
 
 Fetch metadata for a previously uploaded file using its ID.
 
-```
+```text
 GET https://api.piixan.ai/v1/files/{id}
 ```
 
@@ -122,7 +122,7 @@ GET https://api.piixan.ai/v1/files/{id}
 
 ```bash cURL
 curl https://api.piixan.ai/v1/files/file_abc123 \
-  -H "Authorization: Bearer YOUR_API_KEY"
+  -H "Authorization: Bearer <YOUR_API_KEY>"
 ```
 
 **Example response:**
@@ -144,9 +144,11 @@ curl https://api.piixan.ai/v1/files/file_abc123 \
 
 Once a file's `status` is `ready`, reference it in a completions request by including its ID in the `file_ids` array. Piixan AI will use the file's content as additional context when generating the response.
 
+<CodeGroup>
+
 ```bash cURL
 curl -X POST https://api.piixan.ai/v1/completions \
-  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Authorization: Bearer <YOUR_API_KEY>" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "piixan-pro",
@@ -162,7 +164,7 @@ import requests
 response = requests.post(
     "https://api.piixan.ai/v1/completions",
     headers={
-        "Authorization": "Bearer YOUR_API_KEY",
+        "Authorization": "Bearer <YOUR_API_KEY>",
         "Content-Type": "application/json",
     },
     json={
@@ -175,6 +177,8 @@ response = requests.post(
 
 print(response.json()["output"])
 ```
+
+</CodeGroup>
 
 You can include up to **10 file IDs** per request. Files with `status: processing` cannot be used yet — poll the retrieve endpoint or wait a few seconds before retrying.
 

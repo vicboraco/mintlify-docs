@@ -1,7 +1,7 @@
 ---
-title: "How Piixan AI Works: Core Concepts Overview"
+title: "How Piixan AI Works: Core Concepts and Architecture"
 sidebarTitle: "Overview"
-description: "Understand the key building blocks of Piixan AI: models, workspaces, workflows, and credits. Learn how they work together."
+description: "Learn how Piixan AI models, workspaces, workflows, and credits connect so you can start building integrations with confidence today."
 ---
 
 This page gives you a conceptual map of Piixan AI so you can understand how its building blocks fit together before you start building. Whether you're integrating the API, setting up a team workspace, or designing an automated workflow, knowing how models, workspaces, workflows, and credits relate to each other will help you make faster decisions and avoid common pitfalls.
@@ -11,7 +11,7 @@ This page gives you a conceptual map of Piixan AI so you can understand how its 
     Choose from multiple AI models tuned for different tasks — from lightning-fast classification to deep multi-step reasoning.
   </Card>
   <Card title="Workspaces" icon="folder">
-    Organize work by team, project, or department. Each workspace has its own API keys, members, and usage history.
+    Organize work by team, project, or deployment stage. Each workspace has its own API keys, members, and usage history.
   </Card>
   <Card title="Workflows" icon="bolt">
     Chain AI steps into automated pipelines. Trigger them via API, schedule, or webhook to move data without manual effort.
@@ -39,7 +39,7 @@ Every API call you make travels through the same sequence of steps inside Piixan
     Piixan AI validates the `Authorization: Bearer <token>` header against your workspace's API keys. Invalid or missing tokens receive a `401 Unauthorized` response immediately.
   </Step>
   <Step title="Model Selection">
-    The platform routes your request to the correct model runtime based on the `model` field in your payload. If you omit the field, Piixan AI defaults to `piixan-1`.
+    The platform routes your request to the correct model based on the `model` field in your payload. If you omit the field, Piixan AI defaults to `piixan-1`.
   </Step>
   <Step title="Processing">
     The selected model processes your prompt or workflow instructions, applying any configured system context, temperature settings, and token limits you specified.

@@ -1,7 +1,7 @@
 ---
-title: "Webhook Registration and Events API for Piixan AI"
+title: "Piixan AI Webhooks API: Register and Verify Webhooks"
 sidebarTitle: "Webhooks"
-description: "Register webhook endpoints to receive real-time Piixan AI event notifications. POST /v1/webhooks API reference and payload examples."
+description: "Register webhook endpoints for real-time Piixan AI event notifications. POST /v1/webhooks reference includes HMAC signature verification examples."
 ---
 
 Webhooks push real-time event notifications to your server the moment key events occur in Piixan AI — eliminating the need to poll for status updates and letting your application react instantly to workflow completions, failures, and credit alerts.
@@ -22,7 +22,7 @@ Register a webhook for one or more of the following events:
 
 Create a new webhook endpoint to start receiving event notifications.
 
-```
+```text
 POST https://api.piixan.ai/v1/webhooks
 ```
 
@@ -62,7 +62,7 @@ POST https://api.piixan.ai/v1/webhooks
 
 ```bash cURL
 curl -X POST https://api.piixan.ai/v1/webhooks \
-  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Authorization: Bearer <YOUR_API_KEY>" \
   -H "Content-Type: application/json" \
   -d '{
     "url": "https://your-app.com/webhooks/piixan",
@@ -86,7 +86,9 @@ curl -X POST https://api.piixan.ai/v1/webhooks \
 
 ## Webhook Payload
 
-When a subscribed event fires, Piixan AI sends an HTTP POST to your registered URL with a JSON body. Below is an example payload for a `workflow.completed` event:
+When a subscribed event fires, Piixan AI sends an HTTP POST to your registered URL with a JSON body. Below is an example payload for each event type.
+
+**`workflow.completed`**
 
 ```json
 {
@@ -98,6 +100,29 @@ When a subscribed event fires, Piixan AI sends an HTTP POST to your registered U
 }
 ```
 
+**`workflow.failed`**
+
+```json
+{
+  "event": "workflow.failed",
+  "run_id": "run_xyz790",
+  "workflow_id": "wf_abc123",
+  "error": "Workflow step 3 exceeded the maximum token limit.",
+  "timestamp": "2024-01-15T10:31:00Z"
+}
+```
+
+**`usage.threshold_reached`**
+
+```json
+{
+  "event": "usage.threshold_reached",
+  "credits_remaining": 1000,
+  "threshold": 1000,
+  "timestamp": "2024-01-15T10:35:00Z"
+}
+```
+
 Your endpoint must return a `2xx` HTTP status code within **5 seconds** to acknowledge receipt. If it does not, Piixan AI will retry delivery up to three times with exponential backoff.
 
 ---
@@ -106,7 +131,7 @@ Your endpoint must return a `2xx` HTTP status code within **5 seconds** to ackno
 
 When you register a webhook with a `secret`, Piixan AI signs every payload and includes the signature in the `X-Piixan-Signature` header in the format `sha256=<hmac>`. Verify this signature on your server before processing the payload to confirm it genuinely came from Piixan AI.
 
-```python Python — Signature Verification
+```python Python
 import hashlib
 import hmac
 from flask import Flask, request, abort

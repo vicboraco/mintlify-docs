@@ -1,10 +1,10 @@
 ---
-title: "API Key Authentication for Piixan AI"
+title: "Authenticating Piixan AI API Requests with Bearer Tokens"
 sidebarTitle: "Authentication"
-description: "Authenticate Piixan AI API requests using Bearer tokens. Create and manage API keys from your dashboard settings page."
+description: "Authenticate every Piixan AI API request with a Bearer token. Learn how to create API keys, assign scopes, and store credentials safely."
 ---
 
-Every request you make to the Piixan AI API must be authenticated with an API key. You pass your key as a Bearer token in the `Authorization` header of each HTTP request — there are no session cookies or alternative auth schemes for API access. Keys are tied to your account and inherit the scope you assign at creation time.
+Every request you make to the Piixan AI API must be authenticated with an API key. Pass your key as a Bearer token in the `Authorization` header of each HTTP request. Keys are tied to your account and carry the scope you assign at creation time — choose the narrowest scope that meets your application's needs.
 
 ## Creating API Keys
 
@@ -18,7 +18,7 @@ Generate your API keys from the [API Keys settings page](https://app.piixan.ai/s
     Click **Create New Key** and choose the appropriate scope for your use case (see [API Key Scopes](#api-key-scopes) below).
   </Step>
   <Step title="Name your key">
-    Enter a descriptive name — for example, `production-backend` or `ci-pipeline` — so you can identify the key later.
+    Enter a descriptive name — for example, `production-backend` or `staging-integration` — so you can identify the key later.
   </Step>
   <Step title="Copy the key immediately">
     The full key value is shown **only once** at creation time. Copy it now and store it securely. If you lose it, you must revoke the key and create a new one.
@@ -27,32 +27,34 @@ Generate your API keys from the [API Keys settings page](https://app.piixan.ai/s
 
 ## Passing the API Key
 
-Include your API key in the `Authorization` header of every request using the `Bearer` scheme. The examples below show the same authenticated POST request in curl, Python, and JavaScript.
+Include your API key in the `Authorization` header of every request using the `Bearer` scheme. Replace `sk-live-abc123def456` in the examples below with your actual key. The examples show the same authenticated POST request in curl, Python, and JavaScript.
 
 <CodeGroup>
 
 ```bash curl
 curl --request POST \
   --url https://api.piixan.ai/v1/completions \
-  --header "Authorization: Bearer YOUR_API_KEY" \
+  --header "Authorization: Bearer sk-live-abc123def456" \
   --header "Content-Type: application/json" \
   --data '{
     "prompt": "Summarize the following text:",
-    "input": "Piixan AI is an intelligent platform..."
+    "input": "Piixan AI is an intelligent platform for workflow automation."
   }'
 ```
 
 ```python Python
 import requests
 
+API_KEY = "sk-live-abc123def456"  # replace with your key
+
 url = "https://api.piixan.ai/v1/completions"
 headers = {
-    "Authorization": "Bearer YOUR_API_KEY",
+    "Authorization": f"Bearer {API_KEY}",
     "Content-Type": "application/json",
 }
 payload = {
     "prompt": "Summarize the following text:",
-    "input": "Piixan AI is an intelligent platform...",
+    "input": "Piixan AI is an intelligent platform for workflow automation.",
 }
 
 response = requests.post(url, headers=headers, json=payload)
@@ -60,15 +62,17 @@ print(response.json())
 ```
 
 ```javascript JavaScript
+const API_KEY = "sk-live-abc123def456"; // replace with your key
+
 const response = await fetch("https://api.piixan.ai/v1/completions", {
   method: "POST",
   headers: {
-    "Authorization": "Bearer YOUR_API_KEY",
+    "Authorization": `Bearer ${API_KEY}`,
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
     prompt: "Summarize the following text:",
-    input: "Piixan AI is an intelligent platform...",
+    input: "Piixan AI is an intelligent platform for workflow automation.",
   }),
 });
 
@@ -80,10 +84,10 @@ console.log(data);
 
 ## API Key Scopes
 
-When you create a key, you assign it one of three scopes. Choose the narrowest scope that satisfies your application's needs — this limits the blast radius if a key is ever compromised.
+When you create a key, you assign it one of three scopes. Choose the narrowest scope that satisfies your application's needs — this limits the impact if a key is ever compromised.
 
 | Scope   | Permissions                                        |
-|---------|----------------------------------------------------|
+|---------|-----------------------------------------------------|
 | `read`  | GET requests only                                  |
 | `write` | GET and POST requests                              |
 | `admin` | Full access including webhook management           |
@@ -115,5 +119,5 @@ Authentication errors return one of two status codes depending on the nature of 
 ```
 
 <Warning>
-  Never commit API keys directly to source control. Store them as environment variables (e.g., `PIIXAN_API_KEY`) and load them at runtime. Use a secrets manager such as AWS Secrets Manager, HashiCorp Vault, or your CI/CD platform's built-in secrets store for production deployments.
+  Never commit API keys directly to source control. Store them as environment variables (e.g., `PIIXAN_API_KEY`) and load them at runtime. For production deployments, use a secrets manager such as AWS Secrets Manager or HashiCorp Vault to keep credentials out of your codebase.
 </Warning>

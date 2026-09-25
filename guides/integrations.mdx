@@ -1,7 +1,7 @@
 ---
-title: "Integrate Piixan AI with Your Applications"
+title: "Integrate Piixan AI with Your Existing Applications"
 sidebarTitle: "Integrations"
-description: "Connect Piixan AI to your apps and services via REST API, webhooks, or third-party no-code platforms like Zapier and Make."
+description: "Connect Piixan AI to your stack via REST API, webhooks, or no-code platforms like Zapier and Make to build event-driven AI automations."
 ---
 
 Piixan AI is built to fit wherever your data and workflows already live. You can call the REST API directly from any backend service, receive real-time event notifications via webhooks when runs complete or fail, or connect Piixan AI to thousands of other tools through no-code platforms like Zapier and Make — all without changing your existing stack.
@@ -15,7 +15,7 @@ The examples below show the minimal code needed to run a workflow from Node.js a
 <CodeGroup>
 
 ```javascript Node.js
-const response = await fetch("https://app.piixan.ai/v1/workflows/run", {
+const response = await fetch("https://api.piixan.ai/v1/workflows/run", {
   method: "POST",
   headers: {
     "Authorization": `Bearer ${process.env.PIIXAN_API_KEY}`,
@@ -38,7 +38,7 @@ import os
 import requests
 
 response = requests.post(
-    "https://app.piixan.ai/v1/workflows/run",
+    "https://api.piixan.ai/v1/workflows/run",
     headers={
         "Authorization": f"Bearer {os.environ['PIIXAN_API_KEY']}",
         "Content-Type": "application/json",
@@ -87,6 +87,8 @@ When an event fires, Piixan AI sends a `POST` request to your registered endpoin
 ```
 
 ## Setting Up Webhooks
+
+To receive webhook events, register your endpoint from the Piixan AI dashboard. Your server must be publicly reachable over HTTPS and respond with a `2xx` status code within 10 seconds.
 
 <Steps>
 

@@ -1,5 +1,5 @@
 ---
-title: "Troubleshoot Common Piixan AI Issues"
+title: "Troubleshoot Common Piixan AI API and Workflow Issues"
 sidebarTitle: "Troubleshooting"
 description: "Diagnose and fix the most common errors and issues in Piixan AI, from API authentication failures to slow responses and billing problems."
 ---
@@ -24,7 +24,7 @@ This page walks you through diagnosing and resolving the most common issues you 
 
     A common mistake is omitting the `Bearer ` prefix, or adding extra whitespace around the key value.
 
-    **Check that you're calling the correct base URL.** All requests must go to `https://app.piixan.ai/v1/`. Requests to any other URL will not accept your key.
+    **Check that you're calling the correct base URL.** All requests must go to `https://api.piixan.ai/v1`. Requests to any other URL will not accept your key.
   </Accordion>
 
   <Accordion title="403 Forbidden">
@@ -125,7 +125,7 @@ This page walks you through diagnosing and resolving the most common issues you 
     **Poll the run status directly.** Use the `GET /v1/workflows` endpoint to check the current status programmatically rather than relying on the dashboard UI, which may cache stale state:
 
     ```bash
-    curl https://app.piixan.ai/v1/workflows \
+    curl https://api.piixan.ai/v1/workflows \
       -H "Authorization: Bearer pk_live_YOUR_API_KEY"
     ```
 
@@ -153,7 +153,7 @@ If you have worked through the relevant sections above and are still experiencin
 
 - A description of the problem and the steps you have already tried
 - The exact error message and HTTP status code you received
-- The **`X-Request-ID`** value from the `response headers of the failing request
+- The **`X-Request-ID`** value from the response headers of the failing request
 - Your workspace ID (visible at the top of **Settings → General**)
 - The workflow ID if the issue relates to a specific workflow run
 

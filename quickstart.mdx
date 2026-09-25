@@ -1,7 +1,7 @@
 ---
-title: "Get Started with Piixan AI in 5 Minutes"
+title: "Quickstart Guide: Make Your First Piixan AI Request"
 sidebarTitle: "Quickstart"
-description: "Learn how to sign up, get your API key, and make your first AI completion request with Piixan AI in just a few steps."
+description: "Sign up for Piixan AI, generate your API key, and send your first completion request in under five minutes. No prior setup required beyond a terminal."
 ---
 
 By the end of this guide you will have a Piixan AI account, a working API key, and a successful AI completion response returned to your terminal. The whole process takes around five minutes and requires no prior setup beyond a browser and either `curl` or Python installed on your machine.
@@ -20,43 +20,62 @@ By the end of this guide you will have a Piixan AI account, a working API key, a
   </Step>
 
   <Step title="Make Your First Request">
-    Send a `POST` request to `/v1/completions` with your API key in the `Authorization` header. The example below asks Piixan AI to summarise the benefits of AI automation in three bullet points.
+    Send a `POST` request to `/v1/completions` with your API key in the `Authorization` header. The examples below ask Piixan AI to summarise the benefits of AI automation in three bullet points. Replace `<YOUR_API_KEY>` with the key you copied in the previous step.
 
     <CodeGroup>
       ```bash curl
       curl --request POST \
-        --url https://app.piixan.ai/v1/completions \
-        --header "Authorization: Bearer YOUR_API_KEY" \
+        --url https://api.piixan.ai/v1/completions \
+        --header "Authorization: Bearer <YOUR_API_KEY>" \
         --header "Content-Type: application/json" \
         --data '{
-          "model": "piixan-1",
           "prompt": "Summarize the benefits of AI automation in 3 bullet points.",
           "max_tokens": 200
         }'
       ```
 
       ```python Python
+      import os
       import requests
 
-      url = "https://app.piixan.ai/v1/completions"
+      api_key = os.environ["PIIXAN_API_KEY"]
 
-      headers = {
-          "Authorization": "Bearer YOUR_API_KEY",
-          "Content-Type": "application/json",
-      }
+      response = requests.post(
+          "https://api.piixan.ai/v1/completions",
+          headers={
+              "Authorization": f"Bearer {api_key}",
+              "Content-Type": "application/json",
+          },
+          json={
+              "prompt": "Summarize the benefits of AI automation in 3 bullet points.",
+              "max_tokens": 200,
+          },
+      )
 
-      payload = {
-          "model": "piixan-1",
-          "prompt": "Summarize the benefits of AI automation in 3 bullet points.",
-          "max_tokens": 200,
-      }
-
-      response = requests.post(url, json=payload, headers=headers)
       print(response.json())
       ```
     </CodeGroup>
 
-    Replace `YOUR_API_KEY` with the key you copied in the previous step. A successful response returns a JSON object containing a `choices` array with your AI-generated text.
+    A successful response returns a JSON object containing a `choices` array with your AI-generated text:
+
+    ```json
+    {
+      "id": "cmpl-a1b2c3d4e5",
+      "object": "completion",
+      "choices": [
+        {
+          "text": "1. Reduces manual effort by handling repetitive tasks automatically.\n2. Speeds up processes and shortens turnaround times.\n3. Frees your team to focus on higher-value, creative work.",
+          "index": 0,
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 14,
+        "completion_tokens": 42,
+        "total_tokens": 56
+      }
+    }
+    ```
   </Step>
 
   <Step title="Explore the Dashboard">

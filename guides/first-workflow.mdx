@@ -1,7 +1,7 @@
 ---
-title: "Build Your First Workflow in Piixan AI"
+title: "How to Build and Run Your First Piixan AI Workflow"
 sidebarTitle: "First Workflow"
-description: "Learn how to create, configure, and run a Piixan AI workflow that chains AI steps together to automate a task end to end."
+description: "Learn how to create, configure, and trigger a Piixan AI workflow that chains AI steps together to automate any task from start to finish."
 ---
 
 Workflows are named, reusable pipelines that chain one or more AI steps together to automate a task from start to finish. Instead of writing the same prompt repeatedly, you define a workflow once, save it, and invoke it whenever you need — either from the dashboard or programmatically via the API. Each step in a workflow can transform, enrich, or route data, giving you full control over how AI fits into your processes.
@@ -53,7 +53,7 @@ Workflows are named, reusable pipelines that chain one or more AI steps together
 Once your workflow is saved, you can trigger it programmatically from any application. Send a `POST` request to `/v1/workflows/run` with the workflow ID and your input values. You can find the workflow ID on the workflow's detail page in the dashboard.
 
 ```bash curl
-curl -X POST https://app.piixan.ai/v1/workflows/run \
+curl -X POST https://api.piixan.ai/v1/workflows/run \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -74,7 +74,7 @@ A successful response returns a `run_id`, the final `status`, and the workflow `
 }
 ```
 
-If the run is still processing when you receive the response (for long-running workflows), the `status` field will be `"running"`. Poll `GET /v1/workflows/runs/{run_id}` until the status transitions to `"completed"` or `"failed"`.
+For long-running workflows, the `status` field may return as `"running"` immediately after submission. In that case, check the **Run History** tab on the workflow's detail page in the dashboard to see when the run completes, or set up a [webhook](/guides/integrations#webhook-events) to receive a `workflow.completed` notification automatically.
 
 <Tip>
   Save your most-used prompt patterns as workflow templates. Duplicate any existing workflow from the Workflows page to create a new variant without starting from scratch — this is especially useful when building multiple workflows that share a common structure or system prompt.
